@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Builder Pro - Multiple Exams + JSON</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 25px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            padding: 25px 30px 35px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            color: #1e4660;
+            border-left: 5px solid #2c7da0;
+            padding-left: 20px;
+            margin-top: 0;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #d4e0ea;
+            padding-bottom: 15px;
+        }
+        .left-tools {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .right-tools {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #2c5a6e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .btn-green {
+            background: #2c6e3f;
+        }
+        .btn-red {
+            background: #9e3b2e;
+        }
+        .btn:hover {
+            filter: brightness(0.9);
+            transform: translateY(-1px);
+        }
+        select, input[type="text"] {
+            padding: 8px 14px;
+            border-radius: 30px;
+            border: 1px solid #bdcad6;
+            background: white;
+            font-size: 0.9rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .input-group label {
+            font-weight: 700;
+            color: #1a3c4a;
+            font-size: 0.8rem;
+        }
+        input, select, textarea {
+            padding: 10px 14px;
+            border: 1.5px solid #cfdde6;
+            border-radius: 20px;
+            font-family: inherit;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .section-card {
+            background: #fafdff;
+            border-radius: 24px;
+            padding: 18px 22px;
+            margin-top: 20px;
+            border: 1px solid #e2edf7;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f5068;
+            border-bottom: 2px solid #cde0ef;
+            padding-bottom: 6px;
+            margin-bottom: 15px;
+        }
+        .button-group {
+            text-align: center;
+            margin: 35px 0 15px;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #5f7d95;
+            margin-top: 25px;
+        }
+        .exam-selector {
+            background: #f4f8fe;
+            padding: 10px 15px;
+            border-radius: 40px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📚 Exam Builder Pro</h1>
+    
+    <div class="toolbar">
+        <div class="left-tools">
+            <select id="headerStyle">
+                <option value="classic">🏛️ Classic Header</option>
+                <option value="modern">✨ Modern Header</option>
+                <option value="minimal">📄 Minimal Header</option>
+            </select>
+            <div class="exam-selector">
+                <label>📂 Saved exams:</label>
+                <select id="examListSelect" style="min-width: 150px;">
+                    <option value="">-- Select an exam --</option>
+                </select>
+                <button class="btn" id="loadExamBtn">Load</button>
+                <button class="btn btn-red" id="deleteExamBtn">Delete</button>
+            </div>
+        </div>
+        <div class="right-tools">
+            <button class="btn" id="saveCurrentExamBtn">💾 Save current as new</button>
+            <button class="btn" id="exportJsonBtn">📤 Export to JSON</button>
+            <button class="btn" id="importJsonBtn">📥 Import JSON file</button>
+            <button class="btn btn-green" id="exportWordBtn">📄 Export to Word</button>
+        </div>
+    </div>
+
+    <!-- Hidden file input for JSON import -->
+    <input type="file" id="jsonFileInput" accept=".json" style="display:none">
+
+    <!-- Form fields -->
+    <div class="form-grid">
+        <div class="input-group"><label>📌 Exam title</label><input type="text" id="examTitle" value="Global Test 1"></div>
+        <div class="input-group"><label>👩‍🏫 Teacher(s)</label><input type="text" id="teacherName" value="Mr. James Wilson"></div>
+        <div class="input-group"><label>⏱️ Duration</label><input type="text" id="duration" value="1h30"></div>
+        <div class="input-group"><label>🏫 School name</label><input type="text" id="schoolName" value="Green Valley High School"></div>
+        <div class="input-group"><label>🧑‍🎓 Student name</label><input type="text" id="studentName" value="_________________"></div>
+        <div class="input-group"><label>⭐ Grade (optional, e.g. 15/20)</label><input type="text" id="gradeValue" placeholder="Leave empty if not corrected"></div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">📖 Reading Comprehension</div>
+        <div class="input-group"><label>Text passage:</label><textarea id="readingText">The Amazon rainforest is often called "the lungs of the Earth". It produces about 20% of the world's oxygen and is home to millions of species. Unfortunately, deforestation is destroying large areas every year. Scientists warn that if we do not act, the forest could reach a tipping point within decades.</textarea></div>
+        <div class="input-group"><label>Questions (one per line):</label><textarea id="readingQuestions" rows="4">1. Why is the Amazon called "the lungs of the Earth"?
+2. What percentage of oxygen does it produce?
+3. Name one threat mentioned in the text.
+4. According to scientists, what could happen in decades?</textarea></div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">✍️ Language Exercises</div>
+        <div class="input-group"><label>Tasks (grammar/vocabulary):</label><textarea id="languageTasks" rows="5">1. Put the verbs in the correct tense (simple past / present perfect).
+2. Fill in the blanks with the right preposition.
+3. Match the words with their synonyms.</textarea></div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">✒️ Writing Production</div>
+        <div class="input-group"><label>Writing prompt:</label><textarea id="writingPrompt" rows="3">Describe a memorable journey you made and explain why it was important to you. (60-80 words)</textarea></div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn btn-green" id="exportWordBtn2" style="padding:12px 28px; font-size:1rem;">📥 Export to Word (current exam)</button>
+    </div>
+    <footer>💾 Save multiple exams with custom names. JSON import/export for backup and sharing. Grade field appears only if filled.</footer>
+</div>
+
+<script>
+    // ---------- DOM elements ----------
+    const examTitleInput = document.getElementById('examTitle');
+    const teacherName = document.getElementById('teacherName');
+    const duration = document.getElementById('duration');
+    const schoolName = document.getElementById('schoolName');
+    const studentName = document.getElementById('studentName');
+    const gradeValue = document.getElementById('gradeValue');
+    const readingText = document.getElementById('readingText');
+    const readingQuestions = document.getElementById('readingQuestions');
+    const languageTasks = document.getElementById('languageTasks');
+    const writingPrompt = document.getElementById('writingPrompt');
+    const headerStyleSelect = document.getElementById('headerStyle');
+    const examListSelect = document.getElementById('examListSelect');
+    
+    // Helper: get current form data as object
+    function getCurrentExamData() {
+        return {
+            examTitle: examTitleInput.value,
+            teacherName: teacherName.value,
+            duration: duration.value,
+            schoolName: schoolName.value,
+            studentName: studentName.value,
+            grade: gradeValue.value,
+            readingText: readingText.value,
+            readingQuestions: readingQuestions.value,
+            languageTasks: languageTasks.value,
+            writingPrompt: writingPrompt.value,
+            headerStyle: headerStyleSelect.value
+        };
+    }
+    
+    // Fill form from exam data object
+    function setExamData(data) {
+        examTitleInput.value = data.examTitle || '';
+        teacherName.value = data.teacherName || '';
+        duration.value = data.duration || '';
+        schoolName.value = data.schoolName || '';
+        studentName.value = data.studentName || '';
+        gradeValue.value = data.grade || '';
+        readingText.value = data.readingText || '';
+        readingQuestions.value = data.readingQuestions || '';
+        languageTasks.value = data.languageTasks || '';
+        writingPrompt.value = data.writingPrompt || '';
+        headerStyleSelect.value = data.headerStyle || 'classic';
+    }
+    
+    // ---------- Local Storage: multiple exams ----------
+    const STORAGE_KEY = 'examCollection';
+    
+    function getExamCollection() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                return JSON.parse(stored);
+            } catch(e) { return {}; }
+        }
+        return {}; // key: examName, value: examData
+    }
+    
+    function saveExamCollection(collection) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collection));
+        updateExamListDropdown(collection);
+    }
+    
+    function updateExamListDropdown(collection) {
+        examListSelect.innerHTML = '<option value="">-- Select an exam --</option>';
+        for (let name in collection) {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            examListSelect.appendChild(option);
+        }
+    }
+    
+    // Save current exam with a name (prompt)
+    function saveCurrentExamAsNew() {
+        let examName = prompt("Enter a name for this exam (e.g., 'Midterm 2025', 'Test Unit 2'):");
+        if (!examName) return;
+        examName = examName.trim();
+        if (examName === "") return;
+        const collection = getExamCollection();
+        collection[examName] = getCurrentExamData();
+        saveExamCollection(collection);
+        alert(`✅ Exam "${examName}" saved to Local Storage.`);
+    }
+    
+    // Load selected exam from dropdown
+    function loadSelectedExam() {
+        const selectedName = examListSelect.value;
+        if (!selectedName) {
+            alert("Please select an exam from the list.");
+            return;
+        }
+        const collection = getExamCollection();
+        const examData = collection[selectedName];
+        if (examData) {
+            setExamData(examData);
+            alert(`📂 Loaded exam: "${selectedName}"`);
+        } else {
+            alert("Exam not found.");
+        }
+    }
+    
+    // Delete selected exam
+    function deleteSelectedExam() {
+        const selectedName = examListSelect.value;
+        if (!selectedName) {
+            alert("Select an exam to delete.");
+            return;
+        }
+        if (confirm(`Delete exam "${selectedName}" permanently?`)) {
+            const collection = getExamCollection();
+            delete collection[selectedName];
+            saveExamCollection(collection);
+            alert(`Deleted "${selectedName}".`);
+        }
+    }
+    
+    // ---------- JSON Export (current exam) ----------
+    function exportCurrentExamToJSON() {
+        const examData = getCurrentExamData();
+        const jsonStr = JSON.stringify(examData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        const fileName = `${examData.examTitle.replace(/\s+/g, '_') || 'exam'}.json`;
+        link.download = fileName;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    // Import JSON file: add to collection OR replace current?
+    function importJSONFile() {
+        const fileInput = document.getElementById('jsonFileInput');
+        fileInput.click();
+        fileInput.onchange = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    const importedData = JSON.parse(ev.target.result);
+                    if (typeof importedData !== 'object' || !importedData.examTitle) {
+                        alert("Invalid JSON: missing examTitle field.");
+                        return;
+                    }
+                    const action = confirm("Import this exam?\n- Click OK to add it to your saved exams list (you will be asked for a name).\n- Click Cancel to load it directly into the editor without saving.");
+                    if (action) {
+                        let name = prompt("Enter a name to save this imported exam as:", importedData.examTitle);
+                        if (name) {
+                            const collection = getExamCollection();
+                            collection[name] = importedData;
+                            saveExamCollection(collection);
+                            alert(`Imported exam saved as "${name}".`);
+                        }
+                    } else {
+                        setExamData(importedData);
+                        alert("Exam loaded into editor.");
+                    }
+                } catch(err) {
+                    alert("Error parsing JSON file.");
+                }
+                fileInput.value = '';
+            };
+            reader.readAsText(file);
+        };
+    }
+    
+    // ---------- Word Export with dynamic header style (no marks in sections) ----------
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function generateWordHTML() {
+        const data = getCurrentExamData();
+        const style = data.headerStyle;
+        const gradeDisplay = data.grade.trim() ? `<strong>Grade:</strong> ${escapeHtml(data.grade)}` : '';
+        
+        // Format questions list
+        const qLines = data.readingQuestions.split(/\r?\n/).filter(l => l.trim());
+        let questionsHtml = '<ul>';
+        qLines.forEach(line => questionsHtml += `<li>${escapeHtml(line)}</li>`);
+        questionsHtml += '</ul>';
+        
+        let headerHtml = '';
+        if (style === 'classic') {
+            headerHtml = `
+                <table style="width:100%; border-collapse:collapse; margin-bottom:25px; border:1px solid #888;">
+                    <tr><th style="border:1px solid #888; padding:8px; background:#eef2fa; width:30%;">Exam</th><td style="border:1px solid #888; padding:8px;">${escapeHtml(data.examTitle)}</td></tr>
+                    <tr><th style="border:1px solid #888; padding:8px;">Teacher(s)</th><td style="border:1px solid #888; padding:8px;">${escapeHtml(data.teacherName)}</td></tr>
+                    <tr><th style="border:1px solid #888; padding:8px;">Duration</th><td style="border:1px solid #888; padding:8px;">${escapeHtml(data.duration)}</td></tr>
+                    <tr><th style="border:1px solid #888; padding:8px;">School</th><td style="border:1px solid #888; padding:8px;">${escapeHtml(data.schoolName)}</td></tr>
+                    <tr><th style="border:1px solid #888; padding:8px;">Student</th><td style="border:1px solid #888; padding:8px;">${escapeHtml(data.studentName)}</td></tr>
+                    ${gradeDisplay ? `<tr><th style="border:1px solid #888; padding:8px;">Grade</th><td style="border:1px solid #888; padding:8px;">${gradeDisplay}</td></tr>` : ''}
+                </table>
+            `;
+        } else if (style === 'modern') {
+            headerHtml = `
+                <div style="background:#eef3fc; padding:18px; border-radius:24px; margin-bottom:25px;">
+                    <h2 style="margin:0 0 10px 0; color:#1f4e6e;">${escapeHtml(data.examTitle)}</h2>
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between;">
+                        <div><strong>👩‍🏫 Teacher:</strong> ${escapeHtml(data.teacherName)}</div>
+                        <div><strong>⏱️ Duration:</strong> ${escapeHtml(data.duration)}</div>
+                        <div><strong>🏫 School:</strong> ${escapeHtml(data.schoolName)}</div>
+                        <div><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)}</div>
+                        ${gradeDisplay ? `<div><strong>⭐ Grade:</strong> ${gradeDisplay}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        } else { // minimal
+            headerHtml = `
+                <div style="border-bottom:2px solid #aaa; margin-bottom:20px; padding-bottom:8px;">
+                    <h3 style="margin:0 0 6px 0;">${escapeHtml(data.examTitle)}</h3>
+                    <p style="margin:2px 0;"><strong>Teacher:</strong> ${escapeHtml(data.teacherName)} | <strong>Duration:</strong> ${escapeHtml(data.duration)} | <strong>School:</strong> ${escapeHtml(data.schoolName)}</p>
+                    <p style="margin:2px 0;"><strong>Student:</strong> ${escapeHtml(data.studentName)} ${gradeDisplay ? `| ${gradeDisplay}` : ''}</p>
+                </div>
+            `;
+        }
+        
+        return `<!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>${escapeHtml(data.examTitle)}</title>
+        <style>
+            body { font-family: 'Calibri', 'Times New Roman', serif; margin: 2cm 2cm; line-height: 1.4; }
+            .section { margin-top: 28px; }
+            .section-title { font-size: 1.4rem; font-weight: bold; background: #f0f3f8; padding: 8px 15px; border-radius: 30px; }
+            .content { margin: 12px 0 12px 15px; }
+            ul { margin-top: 5px; }
+            footer { margin-top: 45px; text-align: center; font-size: 0.8rem; color: gray; border-top: 1px solid #ccc; padding-top: 8px; }
+        </style>
+        </head>
+        <body>
+        ${headerHtml}
+        <div class="section"><div class="section-title">📖 Reading Comprehension</div>
+        <div class="content"><strong>Text:</strong><br>${escapeHtml(data.readingText).replace(/\n/g,'<br>')}</div>
+        <div class="content"><strong>Questions:</strong><br>${questionsHtml}</div></div>
+        <div class="section"><div class="section-title">✍️ Language Exercises</div>
+        <div class="content">${escapeHtml(data.languageTasks).replace(/\n/g,'<br>')}</div></div>
+        <div class="section"><div class="section-title">✒️ Writing Production</div>
+        <div class="content"><strong>Prompt:</strong><br>${escapeHtml(data.writingPrompt).replace(/\n/g,'<br>')}<br><br>
+        <div style="border-bottom:1px solid #bbb; margin:15px 0;"></div>
+        <div style="border-bottom:1px solid #bbb; margin:15px 0;"></div></div></div>
+        <footer>Total: 20 points (to be completed by the teacher)</footer>
+        </body>
+        </html>`;
+    }
+    
+    function exportToWord() {
+        const fullHtml = generateWordHTML();
+        const blob = new Blob([fullHtml], { type: 'application/msword' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        const title = examTitleInput.value.replace(/\s+/g, '_') || 'exam';
+        link.download = `${title}.doc`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    // Initial load of exam collection dropdown
+    function refreshExamList() {
+        const collection = getExamCollection();
+        updateExamListDropdown(collection);
+    }
+    
+    // Event listeners
+    document.getElementById('saveCurrentExamBtn').addEventListener('click', saveCurrentExamAsNew);
+    document.getElementById('loadExamBtn').addEventListener('click', loadSelectedExam);
+    document.getElementById('deleteExamBtn').addEventListener('click', deleteSelectedExam);
+    document.getElementById('exportJsonBtn').addEventListener('click', exportCurrentExamToJSON);
+    document.getElementById('importJsonBtn').addEventListener('click', importJSONFile);
+    document.getElementById('exportWordBtn').addEventListener('click', exportToWord);
+    document.getElementById('exportWordBtn2').addEventListener('click', exportToWord);
+    
+    // Initialize dropdown on page load
+    refreshExamList();
+</script>
+</body>
+</html>
