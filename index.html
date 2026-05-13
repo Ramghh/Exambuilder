@@ -3,35 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Builder | Rich Text in All Sections</title>
+    <title>Exam Builder | Global + Mid‑Term (Fixed)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
-        body { background: #eef2f7; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; transition: background 0.3s; }
-        body.dark-mode { background: #121c24; color: #eef2f5; }
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background 0.3s;
+        }
+        /* === DARK MODE FIXED – all text areas readable === */
+        body.dark-mode {
+            background: #121c24;
+            color: #eef2f5;
+        }
         body.dark-mode .container { background: #1e2f38; }
         body.dark-mode .main-header { background: #0a1e2a; }
         body.dark-mode .tab { background: #1a2f3a; color: #bdd4e0; }
         body.dark-mode .tab.active { background: #1e3f4a; color: white; border-bottom-color: #6ab0d6; }
-        body.dark-mode .form-grid, body.dark-mode .section-card { background: #1e2f3a; border-color: #3e5f6b; }
-        body.dark-mode input, body.dark-mode select, body.dark-mode textarea, body.dark-mode .rich-editor { background: #0f1e26; border-color: #3e6a7a; color: #f0f4f9; }
-        body.dark-mode .rich-toolbar button { background: #2a4a5a; border-color: #3e6a7a; color: #eef2f5; }
+        body.dark-mode .form-grid,
+        body.dark-mode .section-card,
+        body.dark-mode .exam-selector,
+        body.dark-mode .type-toggle { background: #1e2f3a; border-color: #3e5f6b; }
+        body.dark-mode .rich-editor,
+        body.dark-mode textarea,
+        body.dark-mode input,
+        body.dark-mode select {
+            background: #0f1e26;
+            border-color: #3e6a7a;
+            color: #f0f4f9;
+        }
+        body.dark-mode .rich-editor:focus,
+        body.dark-mode textarea:focus,
+        body.dark-mode input:focus {
+            outline: none;
+            border-color: #6ab0d6;
+        }
+        body.dark-mode .rich-toolbar { background: #0f1e26; }
+        body.dark-mode .rich-toolbar button {
+            background: #2a4a5a;
+            border-color: #3e6a7a;
+            color: #eef2f5;
+        }
         body.dark-mode .btn { background: #2a5a6e; }
         body.dark-mode .btn-green { background: #2e6a4a; }
         body.dark-mode .btn-red { background: #aa5c4a; }
         body.dark-mode .status-bar { background: #0f1e26; color: #cbdae2; }
-        body.dark-mode .input-group label, body.dark-mode .section-title { color: #cbdae2; }
+        body.dark-mode .input-group label,
+        body.dark-mode .section-title { color: #cbdae2; }
+        body.dark-mode ::placeholder { color: #8aa5b5; }
 
-        .container { max-width: 1300px; margin: 0 auto; background: white; border-radius: 32px; box-shadow: 0 20px 35px rgba(0,0,0,0.1); overflow: hidden; }
-        .main-header { background: #1e4660; padding: 18px 25px; color: white; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; }
-        .toolbar-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn { background: #2c5a6e; border: none; padding: 8px 18px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .main-header {
+            background: #1e4660;
+            padding: 18px 25px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .toolbar-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #2c5a6e;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
         .btn-green { background: #2c6e3f; }
         .btn-red { background: #9e3b2e; }
         .btn:hover { filter: brightness(0.9); transform: translateY(-1px); }
 
-        .tabs { display: flex; border-bottom: 2px solid #d4e0ea; background: #f9fbfe; margin: 0 25px; }
-        .tab { flex: 1; text-align: center; padding: 18px 0; cursor: pointer; font-weight: 700; font-size: 1.2rem; color: #2c5a6e; border-bottom: 4px solid transparent; transition: 0.2s; background: #f9fbfe; }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #d4e0ea;
+            background: #f9fbfe;
+            margin: 0 25px;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 18px 0;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #2c5a6e;
+            border-bottom: 4px solid transparent;
+            transition: 0.2s;
+            background: #f9fbfe;
+        }
         .tab i { margin-right: 10px; font-size: 1.3rem; }
         .tab.active { border-bottom-color: #2c7da0; color: #1e4660; background: white; font-weight: 800; }
         .tab:hover:not(.active) { background: #eef3fc; border-bottom-color: #aac7e0; }
@@ -39,23 +120,120 @@
         .tab-content { display: none; padding: 28px; }
         .tab-content.active { display: block; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 25px; background: #fff; padding: 15px; border-radius: 24px; }
-        .input-group { display: flex; flex-direction: column; gap: 6px; }
-        .input-group label { font-weight: 700; color: #1a3c4a; font-size: 0.85rem; }
-        input, select, textarea { padding: 10px 14px; border: 1.5px solid #cfdde6; border-radius: 20px; font-family: inherit; font-size: 0.95rem; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 24px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .input-group label {
+            font-weight: 700;
+            color: #1a3c4a;
+            font-size: 0.85rem;
+        }
+        input, select, textarea {
+            padding: 10px 14px;
+            border: 1.5px solid #cfdde6;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        .rich-toolbar {
+            background: #f0f4f9;
+            border-radius: 20px 20px 0 0;
+            padding: 8px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .rich-toolbar button {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .rich-editor {
+            border: 1.5px solid #cfdde6;
+            border-radius: 0 0 20px 20px;
+            padding: 12px;
+            min-height: 200px;
+            background: white;
+            overflow-y: auto;
+        }
+        .section-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 22px;
+            margin-top: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e4edf5;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1f5068;
+            margin-bottom: 18px;
+            border-left: 5px solid #2c7da0;
+            padding-left: 18px;
+        }
+        .preview-frame {
+            width: 100%;
+            min-height: 750px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 16px;
+        }
+        footer {
+            text-align: center;
+            padding: 18px;
+            font-size: 0.8rem;
+            color: #6c86a3;
+            border-top: 1px solid #e2e8f0;
+        }
+        .exam-selector {
+            background: #eef3fa;
+            padding: 6px 18px;
+            border-radius: 40px;
+            display: inline-flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .status-bar {
+            background: #e6f0f5;
+            padding: 6px 15px;
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 0 25px 10px 25px;
+            border-radius: 60px;
+        }
+        .type-toggle {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #eef3fa;
+            padding: 12px 20px;
+            border-radius: 60px;
+        }
+        .type-toggle label { font-weight: 700; margin-right: 8px; }
+        .type-toggle input { width: auto; margin-right: 4px; }
 
-        /* Rich editor styles */
-        .rich-toolbar { background: #f0f4f9; border-radius: 20px 20px 0 0; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .rich-toolbar button { background: white; border: 1px solid #ccc; border-radius: 30px; padding: 6px 14px; cursor: pointer; font-size: 0.85rem; transition: 0.1s; }
-        .rich-editor { border: 1.5px solid #cfdde6; border-radius: 0 0 20px 20px; padding: 12px; min-height: 200px; background: white; overflow-y: auto; }
-        .section-card { background: #ffffff; border-radius: 24px; padding: 22px; margin-top: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e4edf5; }
-        .section-title { font-size: 1.4rem; font-weight: 700; color: #1f5068; margin-bottom: 18px; border-left: 5px solid #2c7da0; padding-left: 18px; }
-        .preview-frame { width: 100%; min-height: 750px; border: 1px solid #ddd; background: white; border-radius: 16px; }
-        footer { text-align: center; padding: 18px; font-size: 0.8rem; color: #6c86a3; border-top: 1px solid #e2e8f0; }
-        .exam-selector { background: #eef3fa; padding: 6px 18px; border-radius: 40px; display: inline-flex; gap: 12px; align-items: center; }
-        .status-bar { background: #e6f0f5; padding: 6px 15px; font-size: 0.75rem; display: flex; justify-content: space-between; flex-wrap: wrap; margin: 0 25px 10px 25px; border-radius: 60px; }
-
-        @media (max-width: 700px) { .tab { font-size: 1rem; padding: 12px 0; } .tab-content { padding: 18px; } }
+        @media (max-width: 700px) {
+            .tab { font-size: 1rem; padding: 12px 0; }
+            .tab-content { padding: 18px; }
+        }
     </style>
 </head>
 <body>
@@ -101,6 +279,13 @@
             </div>
         </div>
 
+        <!-- Test type toggle -->
+        <div class="type-toggle">
+            <span><i class="fas fa-file-alt"></i> Exam type:</span>
+            <label><input type="radio" name="examType" value="global" checked> 🌍 Global Test (Reading 6 + Language 8 + Writing 6)</label>
+            <label><input type="radio" name="examType" value="midterm"> 🎧 Mid‑Term Test (Listening 8 + Language 12)</label>
+        </div>
+
         <div class="form-grid">
             <div class="input-group"><label>Exam title</label><input type="text" id="examTitle" value="Final Test"></div>
             <div class="input-group"><label>Teacher(s)</label><input type="text" id="teacherName" value="Mr. Adams"></div>
@@ -112,51 +297,82 @@
             <div class="input-group"><label>Academic Year</label><input type="text" id="academicYear" placeholder="2025-2026"></div>
         </div>
 
-        <!-- Reading Comprehension with rich editor -->
-        <div class="section-card">
-            <div class="section-title">📖 Reading Comprehension</div>
-            <div class="rich-toolbar">
-                <button onclick="formatDoc('reading', 'bold')"><i class="fas fa-bold"></i></button>
-                <button onclick="formatDoc('reading', 'italic')"><i class="fas fa-italic"></i></button>
-                <button onclick="formatDoc('reading', 'underline')"><i class="fas fa-underline"></i></button>
-                <button onclick="formatDoc('reading', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                <button onclick="insertImage('reading')"><i class="fas fa-image"></i> Image</button>
-                <button onclick="formatDoc('reading', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+        <!-- GLOBAL TEST sections -->
+        <div id="globalSections">
+            <div class="section-card">
+                <div class="section-title">📖 Reading Comprehension <span style="font-size:0.9rem;">(6 marks)</span></div>
+                <div class="rich-toolbar">
+                    <button onclick="formatDoc('reading', 'bold')"><i class="fas fa-bold"></i></button>
+                    <button onclick="formatDoc('reading', 'italic')"><i class="fas fa-italic"></i></button>
+                    <button onclick="formatDoc('reading', 'underline')"><i class="fas fa-underline"></i></button>
+                    <button onclick="formatDoc('reading', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                    <button onclick="insertImage('reading')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="formatDoc('reading', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+                </div>
+                <div id="readingEditor" class="rich-editor" contenteditable="true">Malala Yousafzai is a famous young peace activist from Pakistan. She was born on July 12, 1997. She fought for girls' education and became the youngest Nobel Prize winner.</div>
+                <input type="hidden" id="readingHidden">
+                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="readingQuestions" rows="4">1. Who is Malala Yousafzai?&#10;2. What is she known for?&#10;3. When was she born?&#10;4. What prize did she win?</textarea></div>
             </div>
-            <div id="readingEditor" class="rich-editor" contenteditable="true">Malala Yousafzai is a famous young peace activist from Pakistan. She was born on July 12, 1997. She fought for girls' education and became the youngest Nobel Prize winner.</div>
-            <input type="hidden" id="readingHidden">
 
-            <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="readingQuestions" rows="4">1. Who is Malala Yousafzai?&#10;2. What is she known for?&#10;3. When was she born?&#10;4. What prize did she win?</textarea></div>
+            <div class="section-card">
+                <div class="section-title">✍️ Language Exercises <span style="font-size:0.9rem;">(8 marks)</span></div>
+                <div class="rich-toolbar">
+                    <button onclick="formatDoc('language', 'bold')"><i class="fas fa-bold"></i></button>
+                    <button onclick="formatDoc('language', 'italic')"><i class="fas fa-italic"></i></button>
+                    <button onclick="formatDoc('language', 'underline')"><i class="fas fa-underline"></i></button>
+                    <button onclick="formatDoc('language', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                    <button onclick="insertImage('language')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="formatDoc('language', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+                </div>
+                <div id="languageEditor" class="rich-editor" contenteditable="true">1. <strong>Put the verbs in the correct tense</strong> (simple past / present perfect). (4 marks)<br>2. <em>Fill in the blanks</em> with the right preposition. (2 marks)<br>3. Match the words with their synonyms. (2 marks)</div>
+                <input type="hidden" id="languageHidden">
+            </div>
+
+            <div class="section-card">
+                <div class="section-title">✒️ Writing Production <span style="font-size:0.9rem;">(6 marks)</span></div>
+                <div class="rich-toolbar">
+                    <button onclick="formatDoc('writing', 'bold')"><i class="fas fa-bold"></i></button>
+                    <button onclick="formatDoc('writing', 'italic')"><i class="fas fa-italic"></i></button>
+                    <button onclick="formatDoc('writing', 'underline')"><i class="fas fa-underline"></i></button>
+                    <button onclick="formatDoc('writing', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                    <button onclick="insertImage('writing')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="formatDoc('writing', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+                </div>
+                <div id="writingEditor" class="rich-editor" contenteditable="true">Describe a memorable journey you made and explain why it was important to you. (60-80 words)</div>
+                <input type="hidden" id="writingHidden">
+            </div>
         </div>
 
-        <!-- Language Exercises with rich editor -->
-        <div class="section-card">
-            <div class="section-title">✍️ Language Exercises</div>
-            <div class="rich-toolbar">
-                <button onclick="formatDoc('language', 'bold')"><i class="fas fa-bold"></i></button>
-                <button onclick="formatDoc('language', 'italic')"><i class="fas fa-italic"></i></button>
-                <button onclick="formatDoc('language', 'underline')"><i class="fas fa-underline"></i></button>
-                <button onclick="formatDoc('language', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                <button onclick="insertImage('language')"><i class="fas fa-image"></i> Image</button>
-                <button onclick="formatDoc('language', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+        <!-- MID-TERM TEST sections (hidden initially) -->
+        <div id="midtermSections" style="display:none;">
+            <div class="section-card">
+                <div class="section-title">🎧 Listening Comprehension <span style="font-size:0.9rem;">(8 marks)</span></div>
+                <div class="rich-toolbar">
+                    <button onclick="formatDoc('listening', 'bold')"><i class="fas fa-bold"></i></button>
+                    <button onclick="formatDoc('listening', 'italic')"><i class="fas fa-italic"></i></button>
+                    <button onclick="formatDoc('listening', 'underline')"><i class="fas fa-underline"></i></button>
+                    <button onclick="formatDoc('listening', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                    <button onclick="insertImage('listening')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="formatDoc('listening', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+                </div>
+                <div id="listeningEditor" class="rich-editor" contenteditable="true">[Listening script] You will hear a conversation between two friends about their summer plans. Listen carefully and answer the questions below.</div>
+                <input type="hidden" id="listeningHidden">
+                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="listeningQuestions" rows="4">1. What are the two friends planning?&#10;2. Where will they go?&#10;3. When are they leaving?&#10;4. How will they travel?</textarea></div>
             </div>
-            <div id="languageEditor" class="rich-editor" contenteditable="true">1. <strong>Put the verbs in the correct tense</strong> (simple past / present perfect). (4 marks)<br>2. <em>Fill in the blanks</em> with the right preposition. (2 marks)<br>3. Match the words with their synonyms. (2 marks)</div>
-            <input type="hidden" id="languageHidden">
-        </div>
 
-        <!-- Writing Production with rich editor -->
-        <div class="section-card">
-            <div class="section-title">✒️ Writing Production</div>
-            <div class="rich-toolbar">
-                <button onclick="formatDoc('writing', 'bold')"><i class="fas fa-bold"></i></button>
-                <button onclick="formatDoc('writing', 'italic')"><i class="fas fa-italic"></i></button>
-                <button onclick="formatDoc('writing', 'underline')"><i class="fas fa-underline"></i></button>
-                <button onclick="formatDoc('writing', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                <button onclick="insertImage('writing')"><i class="fas fa-image"></i> Image</button>
-                <button onclick="formatDoc('writing', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+            <div class="section-card">
+                <div class="section-title">✍️ Language Exercises <span style="font-size:0.9rem;">(12 marks)</span></div>
+                <div class="rich-toolbar">
+                    <button onclick="formatDoc('midLanguage', 'bold')"><i class="fas fa-bold"></i></button>
+                    <button onclick="formatDoc('midLanguage', 'italic')"><i class="fas fa-italic"></i></button>
+                    <button onclick="formatDoc('midLanguage', 'underline')"><i class="fas fa-underline"></i></button>
+                    <button onclick="formatDoc('midLanguage', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                    <button onclick="insertImage('midLanguage')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="formatDoc('midLanguage', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+                </div>
+                <div id="midLanguageEditor" class="rich-editor" contenteditable="true">1. Complete the sentences with the correct form of the verb (5 marks)<br>2. Rewrite the sentences in the passive voice (4 marks)<br>3. Choose the correct word to fill the gaps (3 marks)</div>
+                <input type="hidden" id="midLanguageHidden">
             </div>
-            <div id="writingEditor" class="rich-editor" contenteditable="true">Describe a memorable journey you made and explain why it was important to you. (60-80 words)</div>
-            <input type="hidden" id="writingHidden">
         </div>
     </div>
 
@@ -167,13 +383,14 @@
         </div>
     </div>
 
-    <footer><i class="fas fa-magic"></i> Rich text editing in ALL sections | 6 header styles | Auto-save | Dark mode | Print/PDF | JSON</footer>
+    <footer><i class="fas fa-magic"></i> Global (R6+L8+W6) | Mid‑Term (L8+Lang12) | Rich text everywhere | Fixed dark mode</footer>
 </div>
 
 <script>
-    // --- Rich text helpers for each editor ---
+    // --- Rich text helpers ---
     function formatDoc(editorId, command) {
         let editor = document.getElementById(editorId + 'Editor');
+        if (!editor) return;
         editor.focus();
         if (command === 'removeFormat') {
             document.execCommand('removeFormat', false, null);
@@ -187,23 +404,27 @@
         let url = prompt("Enter image URL:");
         if (url) {
             let editor = document.getElementById(editorId + 'Editor');
-            editor.focus();
-            document.execCommand('insertImage', false, url);
-            syncRichText(editorId);
+            if (editor) {
+                editor.focus();
+                document.execCommand('insertImage', false, url);
+                syncRichText(editorId);
+            }
         }
     }
 
     function syncRichText(editorId) {
         let editor = document.getElementById(editorId + 'Editor');
         let hidden = document.getElementById(editorId + 'Hidden');
-        if (hidden) hidden.value = editor.innerHTML;
+        if (editor && hidden) hidden.value = editor.innerHTML;
     }
 
-    // Auto-sync all editors every second
+    // Auto-sync all editors
     setInterval(() => {
         syncRichText('reading');
         syncRichText('language');
         syncRichText('writing');
+        syncRichText('listening');
+        syncRichText('midLanguage');
     }, 500);
 
     // --- DOM elements ---
@@ -216,14 +437,48 @@
     const gradeValue = document.getElementById('gradeValue');
     const academicYear = document.getElementById('academicYear');
     const readingQuestions = document.getElementById('readingQuestions');
+    const listeningQuestions = document.getElementById('listeningQuestions');
     const headerStyleSelect = document.getElementById('headerStyle');
     const autoSaveStatus = document.getElementById('autoSaveStatus');
+    const globalSections = document.getElementById('globalSections');
+    const midtermSections = document.getElementById('midtermSections');
+    const radioGlobal = document.querySelector('input[value="global"]');
+    const radioMidterm = document.querySelector('input[value="midterm"]');
+
+    let currentExamType = 'global';
+
+    function toggleExamType() {
+        if (currentExamType === 'global') {
+            globalSections.style.display = 'none';
+            midtermSections.style.display = 'block';
+        } else {
+            globalSections.style.display = 'block';
+            midtermSections.style.display = 'none';
+        }
+        updatePreview();
+    }
+
+    radioGlobal.addEventListener('change', () => {
+        if (radioGlobal.checked) {
+            currentExamType = 'global';
+            toggleExamType();
+        }
+    });
+    radioMidterm.addEventListener('change', () => {
+        if (radioMidterm.checked) {
+            currentExamType = 'midterm';
+            toggleExamType();
+        }
+    });
 
     function getCurrentExamData() {
         syncRichText('reading');
         syncRichText('language');
         syncRichText('writing');
+        syncRichText('listening');
+        syncRichText('midLanguage');
         return {
+            examType: currentExamType,
             examTitle: examTitle.value,
             teacherName: teacherName.value,
             duration: duration.value,
@@ -232,10 +487,15 @@
             class: classLevel.value,
             grade: gradeValue.value,
             academicYear: academicYear.value,
-            readingTextHtml: document.getElementById('readingHidden').value,
+            // global
+            readingTextHtml: document.getElementById('readingHidden')?.value || '',
             readingQuestions: readingQuestions.value,
-            languageHtml: document.getElementById('languageHidden').value,
-            writingHtml: document.getElementById('writingHidden').value,
+            languageHtml: document.getElementById('languageHidden')?.value || '',
+            writingHtml: document.getElementById('writingHidden')?.value || '',
+            // mid-term
+            listeningTextHtml: document.getElementById('listeningHidden')?.value || '',
+            listeningQuestions: listeningQuestions.value,
+            midLanguageHtml: document.getElementById('midLanguageHidden')?.value || '',
             headerStyle: headerStyleSelect.value
         };
     }
@@ -249,20 +509,34 @@
         classLevel.value = data.class || '';
         gradeValue.value = data.grade || '';
         academicYear.value = data.academicYear || '';
-        document.getElementById('readingEditor').innerHTML = data.readingTextHtml || '';
+        // set exam type
+        if (data.examType === 'midterm') {
+            radioMidterm.checked = true;
+            currentExamType = 'midterm';
+        } else {
+            radioGlobal.checked = true;
+            currentExamType = 'global';
+        }
+        toggleExamType();
+        // restore editors
+        if (document.getElementById('readingEditor')) document.getElementById('readingEditor').innerHTML = data.readingTextHtml || '';
         document.getElementById('readingHidden').value = data.readingTextHtml || '';
         readingQuestions.value = data.readingQuestions || '';
-        document.getElementById('languageEditor').innerHTML = data.languageHtml || '';
+        if (document.getElementById('languageEditor')) document.getElementById('languageEditor').innerHTML = data.languageHtml || '';
         document.getElementById('languageHidden').value = data.languageHtml || '';
-        document.getElementById('writingEditor').innerHTML = data.writingHtml || '';
+        if (document.getElementById('writingEditor')) document.getElementById('writingEditor').innerHTML = data.writingHtml || '';
         document.getElementById('writingHidden').value = data.writingHtml || '';
+        if (document.getElementById('listeningEditor')) document.getElementById('listeningEditor').innerHTML = data.listeningTextHtml || '';
+        document.getElementById('listeningHidden').value = data.listeningTextHtml || '';
+        listeningQuestions.value = data.listeningQuestions || '';
+        if (document.getElementById('midLanguageEditor')) document.getElementById('midLanguageEditor').innerHTML = data.midLanguageHtml || '';
+        document.getElementById('midLanguageHidden').value = data.midLanguageHtml || '';
         headerStyleSelect.value = data.headerStyle || 'classic';
     }
 
-    // --- Local Storage (same as before) ---
+    // --- Local Storage ---
     const STORAGE_KEY = 'examCollectionPro';
     const AUTO_DRAFT_KEY = 'autoDraftExam';
-
     function getExamCollection() { let s = localStorage.getItem(STORAGE_KEY); try { return s ? JSON.parse(s) : {}; } catch(e){ return {}; } }
     function saveExamCollection(coll) { localStorage.setItem(STORAGE_KEY, JSON.stringify(coll)); updateDropdown(coll); }
     function updateDropdown(coll) { let sel = document.getElementById('examListSelect'); sel.innerHTML = '<option value="">-- Select exam --</option>'; for(let name in coll) { let opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt); } }
@@ -274,24 +548,35 @@
     function checkForDraft() { const draft = localStorage.getItem(AUTO_DRAFT_KEY); if (draft && confirm("Restore auto-saved draft?")) { try { setExamData(JSON.parse(draft)); autoSaveStatus.innerHTML = `<i class="fas fa-undo-alt"></i> Draft restored`; } catch(e){} } }
     function duplicateExam() { let current = getCurrentExamData(); current.examTitle = current.examTitle + " (Copy)"; setExamData(current); alert("Duplicated. Click Save Exam to store."); autoSaveDraft(); }
 
-    // --- Dark mode toggle ---
-    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); const icon = document.querySelector('#darkModeToggle i'); if (document.body.classList.contains('dark-mode')) { icon.className = 'fas fa-sun'; localStorage.setItem('darkMode', 'enabled'); } else { icon.className = 'fas fa-moon'; localStorage.setItem('darkMode', 'disabled'); } }
-    if (localStorage.getItem('darkMode') === 'enabled') { document.body.classList.add('dark-mode'); document.querySelector('#darkModeToggle i').className = 'fas fa-sun'; }
+    // --- Dark mode toggle (fixed) ---
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const icon = document.querySelector('#darkModeToggle i');
+        if (document.body.classList.contains('dark-mode')) {
+            icon.className = 'fas fa-sun';
+            localStorage.setItem('darkMode', 'enabled');
+        } else {
+            icon.className = 'fas fa-moon';
+            localStorage.setItem('darkMode', 'disabled');
+        }
+    }
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        document.querySelector('#darkModeToggle i').className = 'fas fa-sun';
+    }
 
-    // --- JSON import/export ---
+    // --- JSON ---
     function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); }
     function importJSON() { let input = document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let imported=JSON.parse(ev.target.result); if(confirm("Add to library (OK) or load into editor (Cancel)?")){ let name=prompt("Save as name:", imported.examTitle||"Imported"); if(name){ let coll=getExamCollection(); coll[name]=imported; saveExamCollection(coll); } } else { setExamData(imported); updatePreview(); } } catch(err){ alert("Invalid JSON"); } }; reader.readAsText(file); }; input.click(); }
 
-    // --- Exam HTML generator (same 6 header styles) ---
+    // --- Exam HTML generator with correct marks for each type ---
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
     function generateExamHTML() {
         let data = getCurrentExamData();
         let style = data.headerStyle;
         let gradeDisplay = data.grade.trim() ? `<strong>Grade:</strong> ${escapeHtml(data.grade)}` : '';
-        let qLines = data.readingQuestions.split(/\r?\n/).filter(l=>l.trim());
-        let questionsHtml = '<ul>'+qLines.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
-        
         let headerHtml = '';
+        // Same header styles (unchanged, clean)
         if (style === 'threecol1') {
             headerHtml = `<div style="background:#f4f9ff; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; text-align:center;"><div><strong>📌 Exam</strong><br>${escapeHtml(data.examTitle)}</div><div><strong>👩‍🏫 Teacher</strong><br>${escapeHtml(data.teacherName)}</div><div><strong>⏱️ Duration</strong><br>${escapeHtml(data.duration)}</div></div><hr><div style="display:grid; grid-template-columns:repeat(2,1fr); text-align:center;"><div><strong>🏫 School</strong><br>${escapeHtml(data.schoolName)}</div><div><strong>📚 Class</strong><br>${escapeHtml(data.class)}</div></div><div style="margin-top:10px; text-align:center;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)} ${gradeDisplay ? `| ${gradeDisplay}` : ''}</div></div>`;
         } else if (style === 'threecol2') {
@@ -306,16 +591,44 @@
                 `<tr><th>School</th><td>${escapeHtml(data.schoolName)}</td>`+
                 `<tr><th>Student</th><td>${escapeHtml(data.studentName)}</td>`+
                 `<tr><th>Class</th><td>${escapeHtml(data.class)}</td>`+
-                (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td>`:'')+`<tr>`;
+                (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td>`:'')+`</table>`;
         } else if (style === 'modern') {
             headerHtml = `<div style="background:#eef3fc; padding:18px; border-radius:20px; margin-bottom:25px;"><h2>${escapeHtml(data.examTitle)}</h2><div style="display:flex; flex-wrap:wrap; gap:12px;"><div><strong>Teacher:</strong> ${escapeHtml(data.teacherName)}</div><div><strong>Duration:</strong> ${escapeHtml(data.duration)}</div><div><strong>School:</strong> ${escapeHtml(data.schoolName)}</div><div><strong>Student:</strong> ${escapeHtml(data.studentName)}</div><div><strong>Class:</strong> ${escapeHtml(data.class)}</div>${gradeDisplay?`<div>${gradeDisplay}</div>`:''}</div></div>`;
         } else {
             headerHtml = `<div style="border-bottom:2px solid #aaa; margin-bottom:20px;"><h3>${escapeHtml(data.examTitle)}</h3><p><strong>Teacher:</strong> ${escapeHtml(data.teacherName)} | <strong>Duration:</strong> ${escapeHtml(data.duration)} | <strong>School:</strong> ${escapeHtml(data.schoolName)}<br><strong>Student:</strong> ${escapeHtml(data.studentName)} | <strong>Class:</strong> ${escapeHtml(data.class)} ${gradeDisplay?`| ${gradeDisplay}`:''}</p></div>`;
         }
 
-        let readingHtml = data.readingTextHtml || '<p>Text missing</p>';
-        let languageHtml = data.languageHtml || '<p>Language exercises missing</p>';
-        let writingHtml = data.writingHtml || '<p>Writing prompt missing</p>';
+        let bodyHtml = '';
+        if (data.examType === 'midterm') {
+            // Mid-term: Listening (8) + Language (12)
+            let listeningHtml = data.listeningTextHtml || '<p>Listening script missing</p>';
+            let listeningQ = data.listeningQuestions.split(/\r?\n/).filter(l=>l.trim());
+            let listeningQuestionsHtml = '<ul>'+listeningQ.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
+            let midLangHtml = data.midLanguageHtml || '<p>Language exercises missing</p>';
+            bodyHtml = `
+                <div class="section-title">🎧 Listening Comprehension <span style="font-size:0.9rem;">(8 marks)</span></div>
+                <div class="content"><strong>Script / Instructions:</strong><br>${listeningHtml}</div>
+                <div class="content"><strong>Questions:</strong><br>${listeningQuestionsHtml}</div>
+                <div class="section-title">✍️ Language Exercises <span style="font-size:0.9rem;">(12 marks)</span></div>
+                <div class="content">${midLangHtml}</div>
+            `;
+        } else {
+            // Global: Reading (6) + Language (8) + Writing (6)
+            let readingHtml = data.readingTextHtml || '<p>Text missing</p>';
+            let readingQ = data.readingQuestions.split(/\r?\n/).filter(l=>l.trim());
+            let readingQuestionsHtml = '<ul>'+readingQ.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
+            let langHtml = data.languageHtml || '<p>Language exercises missing</p>';
+            let writingHtml = data.writingHtml || '<p>Writing prompt missing</p>';
+            bodyHtml = `
+                <div class="section-title">📖 Reading Comprehension <span style="font-size:0.9rem;">(6 marks)</span></div>
+                <div class="content"><strong>Text:</strong><br>${readingHtml}</div>
+                <div class="content"><strong>Questions:</strong><br>${readingQuestionsHtml}</div>
+                <div class="section-title">✍️ Language Exercises <span style="font-size:0.9rem;">(8 marks)</span></div>
+                <div class="content">${langHtml}</div>
+                <div class="section-title">✒️ Writing Production <span style="font-size:0.9rem;">(6 marks)</span></div>
+                <div class="content">${writingHtml}<br><br><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div></div>
+            `;
+        }
 
         return `<!DOCTYPE html>
         <html><head><meta charset="UTF-8"><title>${escapeHtml(data.examTitle)}</title>
@@ -328,13 +641,7 @@
         </style>
         </head><body>
         ${headerHtml}
-        <div class="section-title">📖 Reading Comprehension</div>
-        <div class="content"><strong>Text:</strong><br>${readingHtml}</div>
-        <div class="content"><strong>Questions:</strong><br>${questionsHtml}</div>
-        <div class="section-title">✍️ Language Exercises</div>
-        <div class="content">${languageHtml}</div>
-        <div class="section-title">✒️ Writing Production</div>
-        <div class="content">${writingHtml}<br><br><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div></div>
+        ${bodyHtml}
         <footer>Total: 20 points</footer>
         </body></html>`;
     }
@@ -371,11 +678,11 @@
 
     // Initialise
     updateDropdown(getExamCollection());
-    syncRichText('reading');
-    syncRichText('language');
-    syncRichText('writing');
+    // sync all editors once
+    ['reading','language','writing','listening','midLanguage'].forEach(id => syncRichText(id));
     checkForDraft();
     updatePreview();
+    toggleExamType(); // ensure correct visibility
 </script>
 </body>
 </html>
