@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Builder | Global + Mid‑Term (Fixed)</title>
+    <title>Exam Builder | Global / Mid‑Term (Fixed Preview)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
@@ -14,7 +14,7 @@
             padding: 20px;
             transition: background 0.3s;
         }
-        /* === DARK MODE FIXED – all text areas readable === */
+        /* Dark mode – text fully readable */
         body.dark-mode {
             background: #121c24;
             color: #eef2f5;
@@ -34,12 +34,6 @@
             background: #0f1e26;
             border-color: #3e6a7a;
             color: #f0f4f9;
-        }
-        body.dark-mode .rich-editor:focus,
-        body.dark-mode textarea:focus,
-        body.dark-mode input:focus {
-            outline: none;
-            border-color: #6ab0d6;
         }
         body.dark-mode .rich-toolbar { background: #0f1e26; }
         body.dark-mode .rich-toolbar button {
@@ -72,11 +66,7 @@
             flex-wrap: wrap;
             align-items: center;
         }
-        .toolbar-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .toolbar-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
         .btn {
             background: #2c5a6e;
             border: none;
@@ -134,11 +124,7 @@
             flex-direction: column;
             gap: 6px;
         }
-        .input-group label {
-            font-weight: 700;
-            color: #1a3c4a;
-            font-size: 0.85rem;
-        }
+        .input-group label { font-weight: 700; color: #1a3c4a; font-size: 0.85rem; }
         input, select, textarea {
             padding: 10px 14px;
             border: 1.5px solid #cfdde6;
@@ -229,7 +215,6 @@
         }
         .type-toggle label { font-weight: 700; margin-right: 8px; }
         .type-toggle input { width: auto; margin-right: 4px; }
-
         @media (max-width: 700px) {
             .tab { font-size: 1rem; padding: 12px 0; }
             .tab-content { padding: 18px; }
@@ -279,7 +264,6 @@
             </div>
         </div>
 
-        <!-- Test type toggle -->
         <div class="type-toggle">
             <span><i class="fas fa-file-alt"></i> Exam type:</span>
             <label><input type="radio" name="examType" value="global" checked> 🌍 Global Test (Reading 6 + Language 8 + Writing 6)</label>
@@ -297,7 +281,7 @@
             <div class="input-group"><label>Academic Year</label><input type="text" id="academicYear" placeholder="2025-2026"></div>
         </div>
 
-        <!-- GLOBAL TEST sections -->
+        <!-- GLOBAL TEST sections (visible by default) -->
         <div id="globalSections">
             <div class="section-card">
                 <div class="section-title">📖 Reading Comprehension <span style="font-size:0.9rem;">(6 marks)</span></div>
@@ -383,11 +367,11 @@
         </div>
     </div>
 
-    <footer><i class="fas fa-magic"></i> Global (R6+L8+W6) | Mid‑Term (L8+Lang12) | Rich text everywhere | Fixed dark mode</footer>
+    <footer><i class="fas fa-magic"></i> Global (R6+L8+W6) | Mid‑Term (L8+Lang12) | Rich text everywhere | Fixed preview</footer>
 </div>
 
 <script>
-    // --- Rich text helpers ---
+    // --- Rich text helpers (unchanged, works for all editors) ---
     function formatDoc(editorId, command) {
         let editor = document.getElementById(editorId + 'Editor');
         if (!editor) return;
@@ -399,7 +383,6 @@
         }
         syncRichText(editorId);
     }
-
     function insertImage(editorId) {
         let url = prompt("Enter image URL:");
         if (url) {
@@ -411,20 +394,13 @@
             }
         }
     }
-
     function syncRichText(editorId) {
         let editor = document.getElementById(editorId + 'Editor');
         let hidden = document.getElementById(editorId + 'Hidden');
         if (editor && hidden) hidden.value = editor.innerHTML;
     }
-
-    // Auto-sync all editors
     setInterval(() => {
-        syncRichText('reading');
-        syncRichText('language');
-        syncRichText('writing');
-        syncRichText('listening');
-        syncRichText('midLanguage');
+        ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
     }, 500);
 
     // --- DOM elements ---
@@ -447,36 +423,33 @@
 
     let currentExamType = 'global';
 
-    function toggleExamType() {
+    function toggleExamTypeVisibility() {
         if (currentExamType === 'global') {
-            globalSections.style.display = 'none';
-            midtermSections.style.display = 'block';
-        } else {
             globalSections.style.display = 'block';
             midtermSections.style.display = 'none';
+        } else {
+            globalSections.style.display = 'none';
+            midtermSections.style.display = 'block';
         }
-        updatePreview();
+        updatePreview(); // refresh preview immediately
     }
 
     radioGlobal.addEventListener('change', () => {
         if (radioGlobal.checked) {
             currentExamType = 'global';
-            toggleExamType();
+            toggleExamTypeVisibility();
         }
     });
     radioMidterm.addEventListener('change', () => {
         if (radioMidterm.checked) {
             currentExamType = 'midterm';
-            toggleExamType();
+            toggleExamTypeVisibility();
         }
     });
 
     function getCurrentExamData() {
-        syncRichText('reading');
-        syncRichText('language');
-        syncRichText('writing');
-        syncRichText('listening');
-        syncRichText('midLanguage');
+        // sync all editors before reading
+        ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
         return {
             examType: currentExamType,
             examTitle: examTitle.value,
@@ -487,12 +460,12 @@
             class: classLevel.value,
             grade: gradeValue.value,
             academicYear: academicYear.value,
-            // global
+            // global sections
             readingTextHtml: document.getElementById('readingHidden')?.value || '',
             readingQuestions: readingQuestions.value,
             languageHtml: document.getElementById('languageHidden')?.value || '',
             writingHtml: document.getElementById('writingHidden')?.value || '',
-            // mid-term
+            // mid-term sections
             listeningTextHtml: document.getElementById('listeningHidden')?.value || '',
             listeningQuestions: listeningQuestions.value,
             midLanguageHtml: document.getElementById('midLanguageHidden')?.value || '',
@@ -509,7 +482,7 @@
         classLevel.value = data.class || '';
         gradeValue.value = data.grade || '';
         academicYear.value = data.academicYear || '';
-        // set exam type
+        // set exam type radio
         if (data.examType === 'midterm') {
             radioMidterm.checked = true;
             currentExamType = 'midterm';
@@ -517,7 +490,7 @@
             radioGlobal.checked = true;
             currentExamType = 'global';
         }
-        toggleExamType();
+        toggleExamTypeVisibility(); // this updates visibility and preview
         // restore editors
         if (document.getElementById('readingEditor')) document.getElementById('readingEditor').innerHTML = data.readingTextHtml || '';
         document.getElementById('readingHidden').value = data.readingTextHtml || '';
@@ -532,9 +505,11 @@
         if (document.getElementById('midLanguageEditor')) document.getElementById('midLanguageEditor').innerHTML = data.midLanguageHtml || '';
         document.getElementById('midLanguageHidden').value = data.midLanguageHtml || '';
         headerStyleSelect.value = data.headerStyle || 'classic';
+        // re-sync
+        ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
     }
 
-    // --- Local Storage ---
+    // --- Local Storage (unchanged, works) ---
     const STORAGE_KEY = 'examCollectionPro';
     const AUTO_DRAFT_KEY = 'autoDraftExam';
     function getExamCollection() { let s = localStorage.getItem(STORAGE_KEY); try { return s ? JSON.parse(s) : {}; } catch(e){ return {}; } }
@@ -548,7 +523,7 @@
     function checkForDraft() { const draft = localStorage.getItem(AUTO_DRAFT_KEY); if (draft && confirm("Restore auto-saved draft?")) { try { setExamData(JSON.parse(draft)); autoSaveStatus.innerHTML = `<i class="fas fa-undo-alt"></i> Draft restored`; } catch(e){} } }
     function duplicateExam() { let current = getCurrentExamData(); current.examTitle = current.examTitle + " (Copy)"; setExamData(current); alert("Duplicated. Click Save Exam to store."); autoSaveDraft(); }
 
-    // --- Dark mode toggle (fixed) ---
+    // --- Dark mode toggle ---
     function toggleDarkMode() {
         document.body.classList.toggle('dark-mode');
         const icon = document.querySelector('#darkModeToggle i');
@@ -569,14 +544,15 @@
     function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); }
     function importJSON() { let input = document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let imported=JSON.parse(ev.target.result); if(confirm("Add to library (OK) or load into editor (Cancel)?")){ let name=prompt("Save as name:", imported.examTitle||"Imported"); if(name){ let coll=getExamCollection(); coll[name]=imported; saveExamCollection(coll); } } else { setExamData(imported); updatePreview(); } } catch(err){ alert("Invalid JSON"); } }; reader.readAsText(file); }; input.click(); }
 
-    // --- Exam HTML generator with correct marks for each type ---
+    // --- Exam HTML generator (fixed: uses currentExamType correctly) ---
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
     function generateExamHTML() {
-        let data = getCurrentExamData();
+        let data = getCurrentExamData(); // this captures the current exam type and all fields
         let style = data.headerStyle;
         let gradeDisplay = data.grade.trim() ? `<strong>Grade:</strong> ${escapeHtml(data.grade)}` : '';
+        
+        // ----- HEADER (same as before, works) -----
         let headerHtml = '';
-        // Same header styles (unchanged, clean)
         if (style === 'threecol1') {
             headerHtml = `<div style="background:#f4f9ff; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; text-align:center;"><div><strong>📌 Exam</strong><br>${escapeHtml(data.examTitle)}</div><div><strong>👩‍🏫 Teacher</strong><br>${escapeHtml(data.teacherName)}</div><div><strong>⏱️ Duration</strong><br>${escapeHtml(data.duration)}</div></div><hr><div style="display:grid; grid-template-columns:repeat(2,1fr); text-align:center;"><div><strong>🏫 School</strong><br>${escapeHtml(data.schoolName)}</div><div><strong>📚 Class</strong><br>${escapeHtml(data.class)}</div></div><div style="margin-top:10px; text-align:center;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)} ${gradeDisplay ? `| ${gradeDisplay}` : ''}</div></div>`;
         } else if (style === 'threecol2') {
@@ -594,13 +570,13 @@
                 (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td>`:'')+`</table>`;
         } else if (style === 'modern') {
             headerHtml = `<div style="background:#eef3fc; padding:18px; border-radius:20px; margin-bottom:25px;"><h2>${escapeHtml(data.examTitle)}</h2><div style="display:flex; flex-wrap:wrap; gap:12px;"><div><strong>Teacher:</strong> ${escapeHtml(data.teacherName)}</div><div><strong>Duration:</strong> ${escapeHtml(data.duration)}</div><div><strong>School:</strong> ${escapeHtml(data.schoolName)}</div><div><strong>Student:</strong> ${escapeHtml(data.studentName)}</div><div><strong>Class:</strong> ${escapeHtml(data.class)}</div>${gradeDisplay?`<div>${gradeDisplay}</div>`:''}</div></div>`;
-        } else {
+        } else { // minimal
             headerHtml = `<div style="border-bottom:2px solid #aaa; margin-bottom:20px;"><h3>${escapeHtml(data.examTitle)}</h3><p><strong>Teacher:</strong> ${escapeHtml(data.teacherName)} | <strong>Duration:</strong> ${escapeHtml(data.duration)} | <strong>School:</strong> ${escapeHtml(data.schoolName)}<br><strong>Student:</strong> ${escapeHtml(data.studentName)} | <strong>Class:</strong> ${escapeHtml(data.class)} ${gradeDisplay?`| ${gradeDisplay}`:''}</p></div>`;
         }
 
+        // ----- BODY based on examType -----
         let bodyHtml = '';
         if (data.examType === 'midterm') {
-            // Mid-term: Listening (8) + Language (12)
             let listeningHtml = data.listeningTextHtml || '<p>Listening script missing</p>';
             let listeningQ = data.listeningQuestions.split(/\r?\n/).filter(l=>l.trim());
             let listeningQuestionsHtml = '<ul>'+listeningQ.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
@@ -613,7 +589,6 @@
                 <div class="content">${midLangHtml}</div>
             `;
         } else {
-            // Global: Reading (6) + Language (8) + Writing (6)
             let readingHtml = data.readingTextHtml || '<p>Text missing</p>';
             let readingQ = data.readingQuestions.split(/\r?\n/).filter(l=>l.trim());
             let readingQuestionsHtml = '<ul>'+readingQ.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
@@ -678,11 +653,9 @@
 
     // Initialise
     updateDropdown(getExamCollection());
-    // sync all editors once
-    ['reading','language','writing','listening','midLanguage'].forEach(id => syncRichText(id));
+    ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
     checkForDraft();
-    updatePreview();
-    toggleExamType(); // ensure correct visibility
+    toggleExamTypeVisibility(); // ensures correct visibility and preview
 </script>
 </body>
 </html>
