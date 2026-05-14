@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Builder | Global / Mid‑Term (Fixed Preview)</title>
+    <title>Exam Builder | Spell Check + Print Layout Control</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
@@ -14,7 +14,7 @@
             padding: 20px;
             transition: background 0.3s;
         }
-        /* Dark mode – text fully readable */
+        /* Dark mode (text readable) */
         body.dark-mode {
             background: #121c24;
             color: #eef2f5;
@@ -26,7 +26,8 @@
         body.dark-mode .form-grid,
         body.dark-mode .section-card,
         body.dark-mode .exam-selector,
-        body.dark-mode .type-toggle { background: #1e2f3a; border-color: #3e5f6b; }
+        body.dark-mode .type-toggle,
+        body.dark-mode .print-panel { background: #1e2f3a; border-color: #3e5f6b; }
         body.dark-mode .rich-editor,
         body.dark-mode textarea,
         body.dark-mode input,
@@ -132,6 +133,10 @@
             font-family: inherit;
             font-size: 0.95rem;
         }
+        /* Spellcheck enabled by default on rich editors */
+        .rich-editor, textarea {
+            spellcheck: true;
+        }
         .rich-toolbar {
             background: #f0f4f9;
             border-radius: 20px 20px 0 0;
@@ -215,9 +220,33 @@
         }
         .type-toggle label { font-weight: 700; margin-right: 8px; }
         .type-toggle input { width: auto; margin-right: 4px; }
+
+        /* Print layout control panel */
+        .print-panel {
+            background: #eef3fa;
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .print-panel .control-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .print-panel label {
+            font-weight: 600;
+            margin-right: 5px;
+        }
         @media (max-width: 700px) {
             .tab { font-size: 1rem; padding: 12px 0; }
             .tab-content { padding: 18px; }
+            .print-panel { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -270,21 +299,44 @@
             <label><input type="radio" name="examType" value="midterm"> 🎧 Mid‑Term Test (Listening 8 + Language 12)</label>
         </div>
 
-        <div class="form-grid">
-            <div class="input-group"><label>Exam title</label><input type="text" id="examTitle" value="Final Test"></div>
-            <div class="input-group"><label>Teacher(s)</label><input type="text" id="teacherName" value="Mr. Adams"></div>
-            <div class="input-group"><label>Duration</label><input type="text" id="duration" value="1h30"></div>
-            <div class="input-group"><label>School name</label><input type="text" id="schoolName" value="International School"></div>
-            <div class="input-group"><label>Student name</label><input type="text" id="studentName" value="_________________"></div>
-            <div class="input-group"><label>Class</label><input type="text" id="classLevel" value="N2"></div>
-            <div class="input-group"><label>Grade (optional)</label><input type="text" id="gradeValue" placeholder="e.g., 15/20"></div>
-            <div class="input-group"><label>Academic Year</label><input type="text" id="academicYear" placeholder="2025-2026"></div>
+        <!-- Print Layout Control Panel -->
+        <div class="print-panel">
+            <div class="control-group">
+                <label><i class="fas fa-eye-slash"></i> Show marks:</label>
+                <label><input type="radio" name="showMarks" value="show" checked> Show</label>
+                <label><input type="radio" name="showMarks" value="hide"> Hide</label>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-print"></i> Page breaks:</label>
+                <label><input type="radio" name="pageBreaks" value="none" checked> None</label>
+                <label><input type="radio" name="pageBreaks" value="between"> Between sections</label>
+                <label><input type="radio" name="pageBreaks" value="beforeEach"> Before each section</label>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-text-height"></i> Font size:</label>
+                <select id="fontSizeSelect">
+                    <option value="11pt">11pt</option>
+                    <option value="12pt" selected>12pt</option>
+                    <option value="14pt">14pt</option>
+                </select>
+            </div>
         </div>
 
-        <!-- GLOBAL TEST sections (visible by default) -->
+        <div class="form-grid">
+            <div class="input-group"><label>Exam title</label><input type="text" id="examTitle" value="Final Test" spellcheck="true"></div>
+            <div class="input-group"><label>Teacher(s)</label><input type="text" id="teacherName" value="Mr. Adams" spellcheck="true"></div>
+            <div class="input-group"><label>Duration</label><input type="text" id="duration" value="1h30" spellcheck="true"></div>
+            <div class="input-group"><label>School name</label><input type="text" id="schoolName" value="International School" spellcheck="true"></div>
+            <div class="input-group"><label>Student name</label><input type="text" id="studentName" value="_________________" spellcheck="true"></div>
+            <div class="input-group"><label>Class</label><input type="text" id="classLevel" value="N2" spellcheck="true"></div>
+            <div class="input-group"><label>Grade (optional)</label><input type="text" id="gradeValue" placeholder="e.g., 15/20" spellcheck="true"></div>
+            <div class="input-group"><label>Academic Year</label><input type="text" id="academicYear" placeholder="2025-2026" spellcheck="true"></div>
+        </div>
+
+        <!-- GLOBAL TEST sections -->
         <div id="globalSections">
             <div class="section-card">
-                <div class="section-title">📖 Reading Comprehension <span style="font-size:0.9rem;">(6 marks)</span></div>
+                <div class="section-title">📖 Reading Comprehension <span class="marks-text">(6 marks)</span></div>
                 <div class="rich-toolbar">
                     <button onclick="formatDoc('reading', 'bold')"><i class="fas fa-bold"></i></button>
                     <button onclick="formatDoc('reading', 'italic')"><i class="fas fa-italic"></i></button>
@@ -293,13 +345,13 @@
                     <button onclick="insertImage('reading')"><i class="fas fa-image"></i> Image</button>
                     <button onclick="formatDoc('reading', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
-                <div id="readingEditor" class="rich-editor" contenteditable="true">Malala Yousafzai is a famous young peace activist from Pakistan. She was born on July 12, 1997. She fought for girls' education and became the youngest Nobel Prize winner.</div>
+                <div id="readingEditor" class="rich-editor" contenteditable="true" spellcheck="true">Malala Yousafzai is a famous young peace activist from Pakistan. She was born on July 12, 1997. She fought for girls' education and became the youngest Nobel Prize winner.</div>
                 <input type="hidden" id="readingHidden">
-                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="readingQuestions" rows="4">1. Who is Malala Yousafzai?&#10;2. What is she known for?&#10;3. When was she born?&#10;4. What prize did she win?</textarea></div>
+                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="readingQuestions" rows="4" spellcheck="true">1. Who is Malala Yousafzai?&#10;2. What is she known for?&#10;3. When was she born?&#10;4. What prize did she win?</textarea></div>
             </div>
 
             <div class="section-card">
-                <div class="section-title">✍️ Language Exercises <span style="font-size:0.9rem;">(8 marks)</span></div>
+                <div class="section-title">✍️ Language Exercises <span class="marks-text">(8 marks)</span></div>
                 <div class="rich-toolbar">
                     <button onclick="formatDoc('language', 'bold')"><i class="fas fa-bold"></i></button>
                     <button onclick="formatDoc('language', 'italic')"><i class="fas fa-italic"></i></button>
@@ -308,12 +360,12 @@
                     <button onclick="insertImage('language')"><i class="fas fa-image"></i> Image</button>
                     <button onclick="formatDoc('language', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
-                <div id="languageEditor" class="rich-editor" contenteditable="true">1. <strong>Put the verbs in the correct tense</strong> (simple past / present perfect). (4 marks)<br>2. <em>Fill in the blanks</em> with the right preposition. (2 marks)<br>3. Match the words with their synonyms. (2 marks)</div>
+                <div id="languageEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. <strong>Put the verbs in the correct tense</strong> (simple past / present perfect). (4 marks)<br>2. <em>Fill in the blanks</em> with the right preposition. (2 marks)<br>3. Match the words with their synonyms. (2 marks)</div>
                 <input type="hidden" id="languageHidden">
             </div>
 
             <div class="section-card">
-                <div class="section-title">✒️ Writing Production <span style="font-size:0.9rem;">(6 marks)</span></div>
+                <div class="section-title">✒️ Writing Production <span class="marks-text">(6 marks)</span></div>
                 <div class="rich-toolbar">
                     <button onclick="formatDoc('writing', 'bold')"><i class="fas fa-bold"></i></button>
                     <button onclick="formatDoc('writing', 'italic')"><i class="fas fa-italic"></i></button>
@@ -322,15 +374,15 @@
                     <button onclick="insertImage('writing')"><i class="fas fa-image"></i> Image</button>
                     <button onclick="formatDoc('writing', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
-                <div id="writingEditor" class="rich-editor" contenteditable="true">Describe a memorable journey you made and explain why it was important to you. (60-80 words)</div>
+                <div id="writingEditor" class="rich-editor" contenteditable="true" spellcheck="true">Describe a memorable journey you made and explain why it was important to you. (60-80 words)</div>
                 <input type="hidden" id="writingHidden">
             </div>
         </div>
 
-        <!-- MID-TERM TEST sections (hidden initially) -->
+        <!-- MID-TERM TEST sections -->
         <div id="midtermSections" style="display:none;">
             <div class="section-card">
-                <div class="section-title">🎧 Listening Comprehension <span style="font-size:0.9rem;">(8 marks)</span></div>
+                <div class="section-title">🎧 Listening Comprehension <span class="marks-text">(8 marks)</span></div>
                 <div class="rich-toolbar">
                     <button onclick="formatDoc('listening', 'bold')"><i class="fas fa-bold"></i></button>
                     <button onclick="formatDoc('listening', 'italic')"><i class="fas fa-italic"></i></button>
@@ -339,13 +391,13 @@
                     <button onclick="insertImage('listening')"><i class="fas fa-image"></i> Image</button>
                     <button onclick="formatDoc('listening', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
-                <div id="listeningEditor" class="rich-editor" contenteditable="true">[Listening script] You will hear a conversation between two friends about their summer plans. Listen carefully and answer the questions below.</div>
+                <div id="listeningEditor" class="rich-editor" contenteditable="true" spellcheck="true">[Listening script] You will hear a conversation between two friends about their summer plans. Listen carefully and answer the questions below.</div>
                 <input type="hidden" id="listeningHidden">
-                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="listeningQuestions" rows="4">1. What are the two friends planning?&#10;2. Where will they go?&#10;3. When are they leaving?&#10;4. How will they travel?</textarea></div>
+                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="listeningQuestions" rows="4" spellcheck="true">1. What are the two friends planning?&#10;2. Where will they go?&#10;3. When are they leaving?&#10;4. How will they travel?</textarea></div>
             </div>
 
             <div class="section-card">
-                <div class="section-title">✍️ Language Exercises <span style="font-size:0.9rem;">(12 marks)</span></div>
+                <div class="section-title">✍️ Language Exercises <span class="marks-text">(12 marks)</span></div>
                 <div class="rich-toolbar">
                     <button onclick="formatDoc('midLanguage', 'bold')"><i class="fas fa-bold"></i></button>
                     <button onclick="formatDoc('midLanguage', 'italic')"><i class="fas fa-italic"></i></button>
@@ -354,7 +406,7 @@
                     <button onclick="insertImage('midLanguage')"><i class="fas fa-image"></i> Image</button>
                     <button onclick="formatDoc('midLanguage', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
-                <div id="midLanguageEditor" class="rich-editor" contenteditable="true">1. Complete the sentences with the correct form of the verb (5 marks)<br>2. Rewrite the sentences in the passive voice (4 marks)<br>3. Choose the correct word to fill the gaps (3 marks)</div>
+                <div id="midLanguageEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. Complete the sentences with the correct form of the verb (5 marks)<br>2. Rewrite the sentences in the passive voice (4 marks)<br>3. Choose the correct word to fill the gaps (3 marks)</div>
                 <input type="hidden" id="midLanguageHidden">
             </div>
         </div>
@@ -367,11 +419,11 @@
         </div>
     </div>
 
-    <footer><i class="fas fa-magic"></i> Global (R6+L8+W6) | Mid‑Term (L8+Lang12) | Rich text everywhere | Fixed preview</footer>
+    <footer><i class="fas fa-magic"></i> Spell check on all text areas | Print layout: hide marks, page breaks, font size | Global + Mid‑Term</footer>
 </div>
 
 <script>
-    // --- Rich text helpers (unchanged, works for all editors) ---
+    // --- Rich text helpers ---
     function formatDoc(editorId, command) {
         let editor = document.getElementById(editorId + 'Editor');
         if (!editor) return;
@@ -420,6 +472,9 @@
     const midtermSections = document.getElementById('midtermSections');
     const radioGlobal = document.querySelector('input[value="global"]');
     const radioMidterm = document.querySelector('input[value="midterm"]');
+    const showMarksRadios = document.querySelectorAll('input[name="showMarks"]');
+    const pageBreaksRadios = document.querySelectorAll('input[name="pageBreaks"]');
+    const fontSizeSelect = document.getElementById('fontSizeSelect');
 
     let currentExamType = 'global';
 
@@ -431,7 +486,7 @@
             globalSections.style.display = 'none';
             midtermSections.style.display = 'block';
         }
-        updatePreview(); // refresh preview immediately
+        updatePreview();
     }
 
     radioGlobal.addEventListener('change', () => {
@@ -447,8 +502,12 @@
         }
     });
 
+    // Listen to print layout changes
+    showMarksRadios.forEach(r => r.addEventListener('change', updatePreview));
+    pageBreaksRadios.forEach(r => r.addEventListener('change', updatePreview));
+    fontSizeSelect.addEventListener('change', updatePreview);
+
     function getCurrentExamData() {
-        // sync all editors before reading
         ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
         return {
             examType: currentExamType,
@@ -460,16 +519,18 @@
             class: classLevel.value,
             grade: gradeValue.value,
             academicYear: academicYear.value,
-            // global sections
             readingTextHtml: document.getElementById('readingHidden')?.value || '',
             readingQuestions: readingQuestions.value,
             languageHtml: document.getElementById('languageHidden')?.value || '',
             writingHtml: document.getElementById('writingHidden')?.value || '',
-            // mid-term sections
             listeningTextHtml: document.getElementById('listeningHidden')?.value || '',
             listeningQuestions: listeningQuestions.value,
             midLanguageHtml: document.getElementById('midLanguageHidden')?.value || '',
-            headerStyle: headerStyleSelect.value
+            headerStyle: headerStyleSelect.value,
+            // print settings
+            showMarks: document.querySelector('input[name="showMarks"]:checked').value === 'show',
+            pageBreaks: document.querySelector('input[name="pageBreaks"]:checked').value,
+            fontSize: fontSizeSelect.value
         };
     }
 
@@ -482,7 +543,6 @@
         classLevel.value = data.class || '';
         gradeValue.value = data.grade || '';
         academicYear.value = data.academicYear || '';
-        // set exam type radio
         if (data.examType === 'midterm') {
             radioMidterm.checked = true;
             currentExamType = 'midterm';
@@ -490,7 +550,7 @@
             radioGlobal.checked = true;
             currentExamType = 'global';
         }
-        toggleExamTypeVisibility(); // this updates visibility and preview
+        toggleExamTypeVisibility();
         // restore editors
         if (document.getElementById('readingEditor')) document.getElementById('readingEditor').innerHTML = data.readingTextHtml || '';
         document.getElementById('readingHidden').value = data.readingTextHtml || '';
@@ -505,11 +565,19 @@
         if (document.getElementById('midLanguageEditor')) document.getElementById('midLanguageEditor').innerHTML = data.midLanguageHtml || '';
         document.getElementById('midLanguageHidden').value = data.midLanguageHtml || '';
         headerStyleSelect.value = data.headerStyle || 'classic';
-        // re-sync
+        // restore print settings if present (optional)
+        if (data.showMarks !== undefined) {
+            const showVal = data.showMarks ? 'show' : 'hide';
+            document.querySelector(`input[name="showMarks"][value="${showVal}"]`).checked = true;
+        }
+        if (data.pageBreaks) {
+            document.querySelector(`input[name="pageBreaks"][value="${data.pageBreaks}"]`).checked = true;
+        }
+        if (data.fontSize) fontSizeSelect.value = data.fontSize;
         ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
     }
 
-    // --- Local Storage (unchanged, works) ---
+    // --- Local Storage ---
     const STORAGE_KEY = 'examCollectionPro';
     const AUTO_DRAFT_KEY = 'autoDraftExam';
     function getExamCollection() { let s = localStorage.getItem(STORAGE_KEY); try { return s ? JSON.parse(s) : {}; } catch(e){ return {}; } }
@@ -523,7 +591,7 @@
     function checkForDraft() { const draft = localStorage.getItem(AUTO_DRAFT_KEY); if (draft && confirm("Restore auto-saved draft?")) { try { setExamData(JSON.parse(draft)); autoSaveStatus.innerHTML = `<i class="fas fa-undo-alt"></i> Draft restored`; } catch(e){} } }
     function duplicateExam() { let current = getCurrentExamData(); current.examTitle = current.examTitle + " (Copy)"; setExamData(current); alert("Duplicated. Click Save Exam to store."); autoSaveDraft(); }
 
-    // --- Dark mode toggle ---
+    // Dark mode
     function toggleDarkMode() {
         document.body.classList.toggle('dark-mode');
         const icon = document.querySelector('#darkModeToggle i');
@@ -540,18 +608,18 @@
         document.querySelector('#darkModeToggle i').className = 'fas fa-sun';
     }
 
-    // --- JSON ---
+    // JSON
     function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); }
     function importJSON() { let input = document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let imported=JSON.parse(ev.target.result); if(confirm("Add to library (OK) or load into editor (Cancel)?")){ let name=prompt("Save as name:", imported.examTitle||"Imported"); if(name){ let coll=getExamCollection(); coll[name]=imported; saveExamCollection(coll); } } else { setExamData(imported); updatePreview(); } } catch(err){ alert("Invalid JSON"); } }; reader.readAsText(file); }; input.click(); }
 
-    // --- Exam HTML generator (fixed: uses currentExamType correctly) ---
+    // --- Exam HTML generator with print layout controls ---
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
     function generateExamHTML() {
-        let data = getCurrentExamData(); // this captures the current exam type and all fields
+        let data = getCurrentExamData();
         let style = data.headerStyle;
         let gradeDisplay = data.grade.trim() ? `<strong>Grade:</strong> ${escapeHtml(data.grade)}` : '';
         
-        // ----- HEADER (same as before, works) -----
+        // ----- HEADER (same as before) -----
         let headerHtml = '';
         if (style === 'threecol1') {
             headerHtml = `<div style="background:#f4f9ff; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; text-align:center;"><div><strong>📌 Exam</strong><br>${escapeHtml(data.examTitle)}</div><div><strong>👩‍🏫 Teacher</strong><br>${escapeHtml(data.teacherName)}</div><div><strong>⏱️ Duration</strong><br>${escapeHtml(data.duration)}</div></div><hr><div style="display:grid; grid-template-columns:repeat(2,1fr); text-align:center;"><div><strong>🏫 School</strong><br>${escapeHtml(data.schoolName)}</div><div><strong>📚 Class</strong><br>${escapeHtml(data.class)}</div></div><div style="margin-top:10px; text-align:center;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)} ${gradeDisplay ? `| ${gradeDisplay}` : ''}</div></div>`;
@@ -570,49 +638,65 @@
                 (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td>`:'')+`</table>`;
         } else if (style === 'modern') {
             headerHtml = `<div style="background:#eef3fc; padding:18px; border-radius:20px; margin-bottom:25px;"><h2>${escapeHtml(data.examTitle)}</h2><div style="display:flex; flex-wrap:wrap; gap:12px;"><div><strong>Teacher:</strong> ${escapeHtml(data.teacherName)}</div><div><strong>Duration:</strong> ${escapeHtml(data.duration)}</div><div><strong>School:</strong> ${escapeHtml(data.schoolName)}</div><div><strong>Student:</strong> ${escapeHtml(data.studentName)}</div><div><strong>Class:</strong> ${escapeHtml(data.class)}</div>${gradeDisplay?`<div>${gradeDisplay}</div>`:''}</div></div>`;
-        } else { // minimal
+        } else {
             headerHtml = `<div style="border-bottom:2px solid #aaa; margin-bottom:20px;"><h3>${escapeHtml(data.examTitle)}</h3><p><strong>Teacher:</strong> ${escapeHtml(data.teacherName)} | <strong>Duration:</strong> ${escapeHtml(data.duration)} | <strong>School:</strong> ${escapeHtml(data.schoolName)}<br><strong>Student:</strong> ${escapeHtml(data.studentName)} | <strong>Class:</strong> ${escapeHtml(data.class)} ${gradeDisplay?`| ${gradeDisplay}`:''}</p></div>`;
         }
 
-        // ----- BODY based on examType -----
+        // Helper to decide if marks text should be shown
+        const showMarks = data.showMarks;
+        function formatSectionTitle(icon, title, marks) {
+            const marksSpan = showMarks ? `<span style="font-size:0.9rem;">(${marks} marks)</span>` : '';
+            return `<div class="section-title">${icon} ${title} ${marksSpan}</div>`;
+        }
+
+        // Build body with print layout options
         let bodyHtml = '';
+        let pageBreakStyle = '';
+        if (data.pageBreaks === 'between') pageBreakStyle = 'page-break-before: always;';
+        else if (data.pageBreaks === 'beforeEach') pageBreakStyle = 'page-break-before: avoid; margin-top: 20px;'; // we'll add page break before each section
+        const fontSize = data.fontSize || '12pt';
+
         if (data.examType === 'midterm') {
             let listeningHtml = data.listeningTextHtml || '<p>Listening script missing</p>';
             let listeningQ = data.listeningQuestions.split(/\r?\n/).filter(l=>l.trim());
             let listeningQuestionsHtml = '<ul>'+listeningQ.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
             let midLangHtml = data.midLanguageHtml || '<p>Language exercises missing</p>';
-            bodyHtml = `
-                <div class="section-title">🎧 Listening Comprehension <span style="font-size:0.9rem;">(8 marks)</span></div>
-                <div class="content"><strong>Script / Instructions:</strong><br>${listeningHtml}</div>
-                <div class="content"><strong>Questions:</strong><br>${listeningQuestionsHtml}</div>
-                <div class="section-title">✍️ Language Exercises <span style="font-size:0.9rem;">(12 marks)</span></div>
-                <div class="content">${midLangHtml}</div>
-            `;
+            let sections = [
+                { icon: "🎧", title: "Listening Comprehension", marks: "8", content: `<div class="content"><strong>Script / Instructions:</strong><br>${listeningHtml}</div><div class="content"><strong>Questions:</strong><br>${listeningQuestionsHtml}</div>` },
+                { icon: "✍️", title: "Language Exercises", marks: "12", content: `<div class="content">${midLangHtml}</div>` }
+            ];
+            bodyHtml = sections.map((sec, idx) => {
+                let breakStyle = (data.pageBreaks === 'between' && idx > 0) ? 'page-break-before: always;' : (data.pageBreaks === 'beforeEach' ? 'page-break-before: avoid;' : '');
+                return `<div style="${breakStyle}">${formatSectionTitle(sec.icon, sec.title, sec.marks)}${sec.content}</div>`;
+            }).join('');
         } else {
             let readingHtml = data.readingTextHtml || '<p>Text missing</p>';
             let readingQ = data.readingQuestions.split(/\r?\n/).filter(l=>l.trim());
             let readingQuestionsHtml = '<ul>'+readingQ.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
             let langHtml = data.languageHtml || '<p>Language exercises missing</p>';
             let writingHtml = data.writingHtml || '<p>Writing prompt missing</p>';
-            bodyHtml = `
-                <div class="section-title">📖 Reading Comprehension <span style="font-size:0.9rem;">(6 marks)</span></div>
-                <div class="content"><strong>Text:</strong><br>${readingHtml}</div>
-                <div class="content"><strong>Questions:</strong><br>${readingQuestionsHtml}</div>
-                <div class="section-title">✍️ Language Exercises <span style="font-size:0.9rem;">(8 marks)</span></div>
-                <div class="content">${langHtml}</div>
-                <div class="section-title">✒️ Writing Production <span style="font-size:0.9rem;">(6 marks)</span></div>
-                <div class="content">${writingHtml}<br><br><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div></div>
-            `;
+            let sections = [
+                { icon: "📖", title: "Reading Comprehension", marks: "6", content: `<div class="content"><strong>Text:</strong><br>${readingHtml}</div><div class="content"><strong>Questions:</strong><br>${readingQuestionsHtml}</div>` },
+                { icon: "✍️", title: "Language Exercises", marks: "8", content: `<div class="content">${langHtml}</div>` },
+                { icon: "✒️", title: "Writing Production", marks: "6", content: `<div class="content">${writingHtml}<br><br><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div></div>` }
+            ];
+            bodyHtml = sections.map((sec, idx) => {
+                let breakStyle = (data.pageBreaks === 'between' && idx > 0) ? 'page-break-before: always;' : (data.pageBreaks === 'beforeEach' ? 'page-break-before: avoid;' : '');
+                return `<div style="${breakStyle}">${formatSectionTitle(sec.icon, sec.title, sec.marks)}${sec.content}</div>`;
+            }).join('');
         }
 
         return `<!DOCTYPE html>
         <html><head><meta charset="UTF-8"><title>${escapeHtml(data.examTitle)}</title>
         <style>
-            body { font-family: 'Calibri', 'Times New Roman', serif; margin: 2cm 2cm; line-height:1.4; }
+            body { font-family: 'Calibri', 'Times New Roman', serif; margin: 2cm 2cm; line-height:1.4; font-size: ${fontSize}; }
             .section-title { font-size:1.4rem; font-weight:bold; background:#f0f3f8; padding:6px 15px; border-radius:30px; margin:25px 0 15px; }
             .content { margin-left:15px; }
             img { max-width:100%; height:auto; }
             footer { margin-top:40px; text-align:center; font-size:0.8rem; border-top:1px solid #ccc; padding-top:8px; }
+            @media print {
+                .page-break { page-break-before: always; }
+            }
         </style>
         </head><body>
         ${headerHtml}
@@ -655,7 +739,7 @@
     updateDropdown(getExamCollection());
     ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
     checkForDraft();
-    toggleExamTypeVisibility(); // ensures correct visibility and preview
+    toggleExamTypeVisibility();
 </script>
 </body>
 </html>
