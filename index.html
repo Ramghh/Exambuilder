@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Builder | Spell Check + Print Layout Control</title>
+    <title>Exam Builder | Word Counter + Print Layout</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
@@ -14,7 +14,6 @@
             padding: 20px;
             transition: background 0.3s;
         }
-        /* Dark mode (text readable) */
         body.dark-mode {
             background: #121c24;
             color: #eef2f5;
@@ -48,6 +47,7 @@
         body.dark-mode .status-bar { background: #0f1e26; color: #cbdae2; }
         body.dark-mode .input-group label,
         body.dark-mode .section-title { color: #cbdae2; }
+        body.dark-mode .word-counter { background: #0f1e26; border-color: #3e6a7a; color: #cbdae2; }
         body.dark-mode ::placeholder { color: #8aa5b5; }
 
         .container {
@@ -132,11 +132,9 @@
             border-radius: 20px;
             font-family: inherit;
             font-size: 0.95rem;
-        }
-        /* Spellcheck enabled by default on rich editors */
-        .rich-editor, textarea {
             spellcheck: true;
         }
+        .rich-editor, textarea { spellcheck: true; }
         .rich-toolbar {
             background: #f0f4f9;
             border-radius: 20px 20px 0 0;
@@ -221,7 +219,7 @@
         .type-toggle label { font-weight: 700; margin-right: 8px; }
         .type-toggle input { width: auto; margin-right: 4px; }
 
-        /* Print layout control panel */
+        /* Print layout panel */
         .print-panel {
             background: #eef3fa;
             border-radius: 20px;
@@ -243,6 +241,25 @@
             font-weight: 600;
             margin-right: 5px;
         }
+        /* Word counter style */
+        .word-counter {
+            background: #f4f8fc;
+            border-radius: 40px;
+            padding: 6px 15px;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            border: 1px solid #cde0ef;
+        }
+        .word-counter span { font-weight: 700; }
+        .word-counter.warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
+        body.dark-mode .word-counter.warning { background: #5c4a1a; border-color: #ffc107; color: #ffe6a3; }
+        .word-counter.exceed { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        body.dark-mode .word-counter.exceed { background: #7a2e2e; border-color: #dc3545; color: #ffcdd2; }
+
         @media (max-width: 700px) {
             .tab { font-size: 1rem; padding: 12px 0; }
             .tab-content { padding: 18px; }
@@ -347,6 +364,12 @@
                 </div>
                 <div id="readingEditor" class="rich-editor" contenteditable="true" spellcheck="true">Malala Yousafzai is a famous young peace activist from Pakistan. She was born on July 12, 1997. She fought for girls' education and became the youngest Nobel Prize winner.</div>
                 <input type="hidden" id="readingHidden">
+                <!-- Word counter for reading text -->
+                <div class="word-counter" id="readingWordCounter">
+                    <span><i class="fas fa-calculator"></i> Word count: <span id="readingWordCount">0</span></span>
+                    <span><i class="fas fa-chart-line"></i> Limit: <input type="number" id="readingWordLimit" value="250" min="10" max="1000" style="width:70px; text-align:center;"> words</span>
+                    <span id="readingWordWarning"></span>
+                </div>
                 <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="readingQuestions" rows="4" spellcheck="true">1. Who is Malala Yousafzai?&#10;2. What is she known for?&#10;3. When was she born?&#10;4. What prize did she win?</textarea></div>
             </div>
 
@@ -379,7 +402,7 @@
             </div>
         </div>
 
-        <!-- MID-TERM TEST sections -->
+        <!-- MID-TERM TEST sections (same as before but without word counter) -->
         <div id="midtermSections" style="display:none;">
             <div class="section-card">
                 <div class="section-title">🎧 Listening Comprehension <span class="marks-text">(8 marks)</span></div>
@@ -419,7 +442,7 @@
         </div>
     </div>
 
-    <footer><i class="fas fa-magic"></i> Spell check on all text areas | Print layout: hide marks, page breaks, font size | Global + Mid‑Term</footer>
+    <footer><i class="fas fa-magic"></i> Word counter for reading text | Print layout: hide marks, page breaks, font size | Spell check</footer>
 </div>
 
 <script>
@@ -434,6 +457,7 @@
             document.execCommand(command, false, null);
         }
         syncRichText(editorId);
+        if (editorId === 'reading') updateReadingWordCount();
     }
     function insertImage(editorId) {
         let url = prompt("Enter image URL:");
@@ -443,6 +467,7 @@
                 editor.focus();
                 document.execCommand('insertImage', false, url);
                 syncRichText(editorId);
+                if (editorId === 'reading') updateReadingWordCount();
             }
         }
     }
@@ -453,9 +478,56 @@
     }
     setInterval(() => {
         ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
+        updateReadingWordCount();
     }, 500);
 
-    // --- DOM elements ---
+    // --- Word counter for reading ---
+    function getWordCountFromHtml(html) {
+        // Create a temporary div to strip HTML tags
+        let temp = document.createElement('div');
+        temp.innerHTML = html;
+        let text = temp.innerText || temp.textContent || '';
+        // Normalize spaces and split by whitespace
+        let words = text.trim().split(/\s+/);
+        return words.length === 1 && words[0] === '' ? 0 : words.length;
+    }
+    function updateReadingWordCount() {
+        let editor = document.getElementById('readingEditor');
+        if (!editor) return;
+        let html = editor.innerHTML;
+        let count = getWordCountFromHtml(html);
+        let countSpan = document.getElementById('readingWordCount');
+        let warningSpan = document.getElementById('readingWordWarning');
+        let limitInput = document.getElementById('readingWordLimit');
+        let limit = parseInt(limitInput.value, 10);
+        if (isNaN(limit)) limit = 250;
+        countSpan.textContent = count;
+        let counterDiv = document.getElementById('readingWordCounter');
+        if (count > limit) {
+            warningSpan.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Exceeds limit (${count}/${limit})`;
+            counterDiv.classList.add('exceed');
+            counterDiv.classList.remove('warning');
+        } else if (count > limit * 0.9) {
+            warningSpan.innerHTML = `<i class="fas fa-clock"></i> Near limit (${count}/${limit})`;
+            counterDiv.classList.add('warning');
+            counterDiv.classList.remove('exceed');
+        } else {
+            warningSpan.innerHTML = '';
+            counterDiv.classList.remove('warning', 'exceed');
+        }
+    }
+    // Listen to limit changes
+    const limitInput = document.getElementById('readingWordLimit');
+    if (limitInput) {
+        limitInput.addEventListener('input', () => updateReadingWordCount());
+    }
+    // Also listen to input events on the reading editor
+    const readingEditor = document.getElementById('readingEditor');
+    if (readingEditor) {
+        readingEditor.addEventListener('input', () => updateReadingWordCount());
+    }
+
+    // --- DOM elements (rest of the script unchanged except for print controls and exam data) ---
     const examTitle = document.getElementById('examTitle');
     const teacherName = document.getElementById('teacherName');
     const duration = document.getElementById('duration');
@@ -502,13 +574,16 @@
         }
     });
 
-    // Listen to print layout changes
     showMarksRadios.forEach(r => r.addEventListener('change', updatePreview));
     pageBreaksRadios.forEach(r => r.addEventListener('change', updatePreview));
     fontSizeSelect.addEventListener('change', updatePreview);
 
     function getCurrentExamData() {
-        ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
+        syncRichText('reading');
+        syncRichText('language');
+        syncRichText('writing');
+        syncRichText('listening');
+        syncRichText('midLanguage');
         return {
             examType: currentExamType,
             examTitle: examTitle.value,
@@ -527,10 +602,10 @@
             listeningQuestions: listeningQuestions.value,
             midLanguageHtml: document.getElementById('midLanguageHidden')?.value || '',
             headerStyle: headerStyleSelect.value,
-            // print settings
             showMarks: document.querySelector('input[name="showMarks"]:checked').value === 'show',
             pageBreaks: document.querySelector('input[name="pageBreaks"]:checked').value,
-            fontSize: fontSizeSelect.value
+            fontSize: fontSizeSelect.value,
+            readingWordLimit: parseInt(document.getElementById('readingWordLimit')?.value, 10) || 250
         };
     }
 
@@ -551,7 +626,6 @@
             currentExamType = 'global';
         }
         toggleExamTypeVisibility();
-        // restore editors
         if (document.getElementById('readingEditor')) document.getElementById('readingEditor').innerHTML = data.readingTextHtml || '';
         document.getElementById('readingHidden').value = data.readingTextHtml || '';
         readingQuestions.value = data.readingQuestions || '';
@@ -565,7 +639,6 @@
         if (document.getElementById('midLanguageEditor')) document.getElementById('midLanguageEditor').innerHTML = data.midLanguageHtml || '';
         document.getElementById('midLanguageHidden').value = data.midLanguageHtml || '';
         headerStyleSelect.value = data.headerStyle || 'classic';
-        // restore print settings if present (optional)
         if (data.showMarks !== undefined) {
             const showVal = data.showMarks ? 'show' : 'hide';
             document.querySelector(`input[name="showMarks"][value="${showVal}"]`).checked = true;
@@ -574,10 +647,14 @@
             document.querySelector(`input[name="pageBreaks"][value="${data.pageBreaks}"]`).checked = true;
         }
         if (data.fontSize) fontSizeSelect.value = data.fontSize;
+        if (data.readingWordLimit && document.getElementById('readingWordLimit')) {
+            document.getElementById('readingWordLimit').value = data.readingWordLimit;
+        }
         ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
+        updateReadingWordCount();
     }
 
-    // --- Local Storage ---
+    // --- Local Storage (unchanged) ---
     const STORAGE_KEY = 'examCollectionPro';
     const AUTO_DRAFT_KEY = 'autoDraftExam';
     function getExamCollection() { let s = localStorage.getItem(STORAGE_KEY); try { return s ? JSON.parse(s) : {}; } catch(e){ return {}; } }
@@ -612,14 +689,12 @@
     function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); }
     function importJSON() { let input = document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let imported=JSON.parse(ev.target.result); if(confirm("Add to library (OK) or load into editor (Cancel)?")){ let name=prompt("Save as name:", imported.examTitle||"Imported"); if(name){ let coll=getExamCollection(); coll[name]=imported; saveExamCollection(coll); } } else { setExamData(imported); updatePreview(); } } catch(err){ alert("Invalid JSON"); } }; reader.readAsText(file); }; input.click(); }
 
-    // --- Exam HTML generator with print layout controls ---
+    // --- Exam HTML generator (unchanged from previous working version) ---
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
     function generateExamHTML() {
         let data = getCurrentExamData();
         let style = data.headerStyle;
         let gradeDisplay = data.grade.trim() ? `<strong>Grade:</strong> ${escapeHtml(data.grade)}` : '';
-        
-        // ----- HEADER (same as before) -----
         let headerHtml = '';
         if (style === 'threecol1') {
             headerHtml = `<div style="background:#f4f9ff; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; text-align:center;"><div><strong>📌 Exam</strong><br>${escapeHtml(data.examTitle)}</div><div><strong>👩‍🏫 Teacher</strong><br>${escapeHtml(data.teacherName)}</div><div><strong>⏱️ Duration</strong><br>${escapeHtml(data.duration)}</div></div><hr><div style="display:grid; grid-template-columns:repeat(2,1fr); text-align:center;"><div><strong>🏫 School</strong><br>${escapeHtml(data.schoolName)}</div><div><strong>📚 Class</strong><br>${escapeHtml(data.class)}</div></div><div style="margin-top:10px; text-align:center;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)} ${gradeDisplay ? `| ${gradeDisplay}` : ''}</div></div>`;
@@ -629,33 +704,26 @@
             headerHtml = `<div style="display:flex; justify-content:space-between; flex-wrap:wrap; background:#eef3fa; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="flex:1;"><strong>📌 Exam:</strong> ${escapeHtml(data.examTitle)}<br><strong>👩‍🏫 Teacher:</strong> ${escapeHtml(data.teacherName)}<br><strong>⏱️ Duration:</strong> ${escapeHtml(data.duration)}<br><strong>🏫 School:</strong> ${escapeHtml(data.schoolName)}</div><div style="flex:1;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)}<br><strong>📚 Class:</strong> ${escapeHtml(data.class)}<br>${data.academicYear ? `<strong>📅 Year:</strong> ${escapeHtml(data.academicYear)}<br>` : ''}${gradeDisplay ? `<strong>⭐ Grade:</strong> ${gradeDisplay}` : ''}</div></div>`;
         } else if (style === 'classic') {
             headerHtml = `<table style="width:100%; border-collapse:collapse; margin-bottom:25px;">`+
-                `<tr><th style="border:1px solid #888; padding:8px;">Exam</th><td>${escapeHtml(data.examTitle)}</td>`+
-                `<tr><th>Teacher(s)</th><td>${escapeHtml(data.teacherName)}</td>`+
-                `<tr><th>Duration</th><td>${escapeHtml(data.duration)}</td>`+
-                `<tr><th>School</th><td>${escapeHtml(data.schoolName)}</td>`+
-                `<tr><th>Student</th><td>${escapeHtml(data.studentName)}</td>`+
-                `<tr><th>Class</th><td>${escapeHtml(data.class)}</td>`+
-                (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td>`:'')+`</table>`;
+                `<tr><th style="border:1px solid #888; padding:8px;">Exam</th><td>${escapeHtml(data.examTitle)}</td><tr>`+
+                `<tr><th>Teacher(s)</th><td>${escapeHtml(data.teacherName)}</td></tr>`+
+                `<tr><th>Duration</th><td>${escapeHtml(data.duration)}</td></tr>`+
+                `<tr><th>School</th><td>${escapeHtml(data.schoolName)}</td></tr>`+
+                `<tr><th>Student</th><td>${escapeHtml(data.studentName)}</td></tr>`+
+                `<tr><th>Class</th><td>${escapeHtml(data.class)}</td></tr>`+
+                (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td></tr>`:'')+`</table>`;
         } else if (style === 'modern') {
             headerHtml = `<div style="background:#eef3fc; padding:18px; border-radius:20px; margin-bottom:25px;"><h2>${escapeHtml(data.examTitle)}</h2><div style="display:flex; flex-wrap:wrap; gap:12px;"><div><strong>Teacher:</strong> ${escapeHtml(data.teacherName)}</div><div><strong>Duration:</strong> ${escapeHtml(data.duration)}</div><div><strong>School:</strong> ${escapeHtml(data.schoolName)}</div><div><strong>Student:</strong> ${escapeHtml(data.studentName)}</div><div><strong>Class:</strong> ${escapeHtml(data.class)}</div>${gradeDisplay?`<div>${gradeDisplay}</div>`:''}</div></div>`;
         } else {
             headerHtml = `<div style="border-bottom:2px solid #aaa; margin-bottom:20px;"><h3>${escapeHtml(data.examTitle)}</h3><p><strong>Teacher:</strong> ${escapeHtml(data.teacherName)} | <strong>Duration:</strong> ${escapeHtml(data.duration)} | <strong>School:</strong> ${escapeHtml(data.schoolName)}<br><strong>Student:</strong> ${escapeHtml(data.studentName)} | <strong>Class:</strong> ${escapeHtml(data.class)} ${gradeDisplay?`| ${gradeDisplay}`:''}</p></div>`;
         }
 
-        // Helper to decide if marks text should be shown
         const showMarks = data.showMarks;
         function formatSectionTitle(icon, title, marks) {
             const marksSpan = showMarks ? `<span style="font-size:0.9rem;">(${marks} marks)</span>` : '';
             return `<div class="section-title">${icon} ${title} ${marksSpan}</div>`;
         }
 
-        // Build body with print layout options
         let bodyHtml = '';
-        let pageBreakStyle = '';
-        if (data.pageBreaks === 'between') pageBreakStyle = 'page-break-before: always;';
-        else if (data.pageBreaks === 'beforeEach') pageBreakStyle = 'page-break-before: avoid; margin-top: 20px;'; // we'll add page break before each section
-        const fontSize = data.fontSize || '12pt';
-
         if (data.examType === 'midterm') {
             let listeningHtml = data.listeningTextHtml || '<p>Listening script missing</p>';
             let listeningQ = data.listeningQuestions.split(/\r?\n/).filter(l=>l.trim());
@@ -689,7 +757,7 @@
         return `<!DOCTYPE html>
         <html><head><meta charset="UTF-8"><title>${escapeHtml(data.examTitle)}</title>
         <style>
-            body { font-family: 'Calibri', 'Times New Roman', serif; margin: 2cm 2cm; line-height:1.4; font-size: ${fontSize}; }
+            body { font-family: 'Calibri', 'Times New Roman', serif; margin: 2cm 2cm; line-height:1.4; font-size: ${data.fontSize || '12pt'}; }
             .section-title { font-size:1.4rem; font-weight:bold; background:#f0f3f8; padding:6px 15px; border-radius:30px; margin:25px 0 15px; }
             .content { margin-left:15px; }
             img { max-width:100%; height:auto; }
@@ -740,6 +808,7 @@
     ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
     checkForDraft();
     toggleExamTypeVisibility();
+    updateReadingWordCount();
 </script>
 </body>
 </html>
