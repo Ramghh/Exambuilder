@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Builder | Word Counter + Print Layout</title>
+    <title>Exam Builder | Auto‑expand Questions + Word Counter</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
@@ -134,6 +134,12 @@
             font-size: 0.95rem;
             spellcheck: true;
         }
+        /* Auto-expanding textarea */
+        textarea.auto-expand {
+            overflow-y: hidden;
+            resize: vertical;
+            min-height: 80px;
+        }
         .rich-editor, textarea { spellcheck: true; }
         .rich-toolbar {
             background: #f0f4f9;
@@ -219,7 +225,6 @@
         .type-toggle label { font-weight: 700; margin-right: 8px; }
         .type-toggle input { width: auto; margin-right: 4px; }
 
-        /* Print layout panel */
         .print-panel {
             background: #eef3fa;
             border-radius: 20px;
@@ -237,11 +242,8 @@
             align-items: center;
             flex-wrap: wrap;
         }
-        .print-panel label {
-            font-weight: 600;
-            margin-right: 5px;
-        }
-        /* Word counter style */
+        .print-panel label { font-weight: 600; margin-right: 5px; }
+
         .word-counter {
             background: #f4f8fc;
             border-radius: 40px;
@@ -316,7 +318,6 @@
             <label><input type="radio" name="examType" value="midterm"> 🎧 Mid‑Term Test (Listening 8 + Language 12)</label>
         </div>
 
-        <!-- Print Layout Control Panel -->
         <div class="print-panel">
             <div class="control-group">
                 <label><i class="fas fa-eye-slash"></i> Show marks:</label>
@@ -364,13 +365,15 @@
                 </div>
                 <div id="readingEditor" class="rich-editor" contenteditable="true" spellcheck="true">Malala Yousafzai is a famous young peace activist from Pakistan. She was born on July 12, 1997. She fought for girls' education and became the youngest Nobel Prize winner.</div>
                 <input type="hidden" id="readingHidden">
-                <!-- Word counter for reading text -->
                 <div class="word-counter" id="readingWordCounter">
                     <span><i class="fas fa-calculator"></i> Word count: <span id="readingWordCount">0</span></span>
                     <span><i class="fas fa-chart-line"></i> Limit: <input type="number" id="readingWordLimit" value="250" min="10" max="1000" style="width:70px; text-align:center;"> words</span>
                     <span id="readingWordWarning"></span>
                 </div>
-                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="readingQuestions" rows="4" spellcheck="true">1. Who is Malala Yousafzai?&#10;2. What is she known for?&#10;3. When was she born?&#10;4. What prize did she win?</textarea></div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <label>Questions (one per line):</label>
+                    <textarea id="readingQuestions" class="auto-expand" rows="1" spellcheck="true">1. Who is Malala Yousafzai?&#10;2. What is she known for?&#10;3. When was she born?&#10;4. What prize did she win?</textarea>
+                </div>
             </div>
 
             <div class="section-card">
@@ -402,7 +405,7 @@
             </div>
         </div>
 
-        <!-- MID-TERM TEST sections (same as before but without word counter) -->
+        <!-- MID-TERM TEST sections -->
         <div id="midtermSections" style="display:none;">
             <div class="section-card">
                 <div class="section-title">🎧 Listening Comprehension <span class="marks-text">(8 marks)</span></div>
@@ -416,7 +419,10 @@
                 </div>
                 <div id="listeningEditor" class="rich-editor" contenteditable="true" spellcheck="true">[Listening script] You will hear a conversation between two friends about their summer plans. Listen carefully and answer the questions below.</div>
                 <input type="hidden" id="listeningHidden">
-                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="listeningQuestions" rows="4" spellcheck="true">1. What are the two friends planning?&#10;2. Where will they go?&#10;3. When are they leaving?&#10;4. How will they travel?</textarea></div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <label>Questions (one per line):</label>
+                    <textarea id="listeningQuestions" class="auto-expand" rows="1" spellcheck="true">1. What are the two friends planning?&#10;2. Where will they go?&#10;3. When are they leaving?&#10;4. How will they travel?</textarea>
+                </div>
             </div>
 
             <div class="section-card">
@@ -442,10 +448,21 @@
         </div>
     </div>
 
-    <footer><i class="fas fa-magic"></i> Word counter for reading text | Print layout: hide marks, page breaks, font size | Spell check</footer>
+    <footer><i class="fas fa-magic"></i> Auto-expand questions | Word counter | Print layout | Spell check | Global + Mid‑Term</footer>
 </div>
 
 <script>
+    // --- Auto-expand textareas ---
+    function autoExpandTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.max(textarea.scrollHeight, 80) + 'px';
+    }
+    document.querySelectorAll('textarea.auto-expand').forEach(ta => {
+        ta.addEventListener('input', function() { autoExpandTextarea(this); });
+        // initial expansion
+        autoExpandTextarea(ta);
+    });
+
     // --- Rich text helpers ---
     function formatDoc(editorId, command) {
         let editor = document.getElementById(editorId + 'Editor');
@@ -483,11 +500,9 @@
 
     // --- Word counter for reading ---
     function getWordCountFromHtml(html) {
-        // Create a temporary div to strip HTML tags
         let temp = document.createElement('div');
         temp.innerHTML = html;
         let text = temp.innerText || temp.textContent || '';
-        // Normalize spaces and split by whitespace
         let words = text.trim().split(/\s+/);
         return words.length === 1 && words[0] === '' ? 0 : words.length;
     }
@@ -516,18 +531,12 @@
             counterDiv.classList.remove('warning', 'exceed');
         }
     }
-    // Listen to limit changes
     const limitInput = document.getElementById('readingWordLimit');
-    if (limitInput) {
-        limitInput.addEventListener('input', () => updateReadingWordCount());
-    }
-    // Also listen to input events on the reading editor
-    const readingEditor = document.getElementById('readingEditor');
-    if (readingEditor) {
-        readingEditor.addEventListener('input', () => updateReadingWordCount());
-    }
+    if (limitInput) limitInput.addEventListener('input', () => updateReadingWordCount());
+    const readingEditorElem = document.getElementById('readingEditor');
+    if (readingEditorElem) readingEditorElem.addEventListener('input', () => updateReadingWordCount());
 
-    // --- DOM elements (rest of the script unchanged except for print controls and exam data) ---
+    // --- DOM elements for exam data (unchanged) ---
     const examTitle = document.getElementById('examTitle');
     const teacherName = document.getElementById('teacherName');
     const duration = document.getElementById('duration');
@@ -652,9 +661,11 @@
         }
         ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
         updateReadingWordCount();
+        // re-expand textareas after loading
+        document.querySelectorAll('textarea.auto-expand').forEach(ta => autoExpandTextarea(ta));
     }
 
-    // --- Local Storage (unchanged) ---
+    // --- Local Storage (standard) ---
     const STORAGE_KEY = 'examCollectionPro';
     const AUTO_DRAFT_KEY = 'autoDraftExam';
     function getExamCollection() { let s = localStorage.getItem(STORAGE_KEY); try { return s ? JSON.parse(s) : {}; } catch(e){ return {}; } }
@@ -689,7 +700,7 @@
     function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); }
     function importJSON() { let input = document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let imported=JSON.parse(ev.target.result); if(confirm("Add to library (OK) or load into editor (Cancel)?")){ let name=prompt("Save as name:", imported.examTitle||"Imported"); if(name){ let coll=getExamCollection(); coll[name]=imported; saveExamCollection(coll); } } else { setExamData(imported); updatePreview(); } } catch(err){ alert("Invalid JSON"); } }; reader.readAsText(file); }; input.click(); }
 
-    // --- Exam HTML generator (unchanged from previous working version) ---
+    // --- Exam HTML generator (exactly as before, works) ---
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
     function generateExamHTML() {
         let data = getCurrentExamData();
@@ -704,13 +715,13 @@
             headerHtml = `<div style="display:flex; justify-content:space-between; flex-wrap:wrap; background:#eef3fa; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="flex:1;"><strong>📌 Exam:</strong> ${escapeHtml(data.examTitle)}<br><strong>👩‍🏫 Teacher:</strong> ${escapeHtml(data.teacherName)}<br><strong>⏱️ Duration:</strong> ${escapeHtml(data.duration)}<br><strong>🏫 School:</strong> ${escapeHtml(data.schoolName)}</div><div style="flex:1;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)}<br><strong>📚 Class:</strong> ${escapeHtml(data.class)}<br>${data.academicYear ? `<strong>📅 Year:</strong> ${escapeHtml(data.academicYear)}<br>` : ''}${gradeDisplay ? `<strong>⭐ Grade:</strong> ${gradeDisplay}` : ''}</div></div>`;
         } else if (style === 'classic') {
             headerHtml = `<table style="width:100%; border-collapse:collapse; margin-bottom:25px;">`+
-                `<tr><th style="border:1px solid #888; padding:8px;">Exam</th><td>${escapeHtml(data.examTitle)}</td><tr>`+
-                `<tr><th>Teacher(s)</th><td>${escapeHtml(data.teacherName)}</td></tr>`+
-                `<tr><th>Duration</th><td>${escapeHtml(data.duration)}</td></tr>`+
-                `<tr><th>School</th><td>${escapeHtml(data.schoolName)}</td></tr>`+
-                `<tr><th>Student</th><td>${escapeHtml(data.studentName)}</td></tr>`+
-                `<tr><th>Class</th><td>${escapeHtml(data.class)}</td></tr>`+
-                (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td></tr>`:'')+`</table>`;
+                `<tr><th style="border:1px solid #888; padding:8px;">Exam</th><td>${escapeHtml(data.examTitle)}</td>`+
+                `<tr><th>Teacher(s)</th><td>${escapeHtml(data.teacherName)}</td>`+
+                `<tr><th>Duration</th><td>${escapeHtml(data.duration)}</td>`+
+                `<tr><th>School</th><td>${escapeHtml(data.schoolName)}</td>`+
+                `<tr><th>Student</th><td>${escapeHtml(data.studentName)}</td>`+
+                `<tr><th>Class</th><td>${escapeHtml(data.class)}</td>`+
+                (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td>`:'')+`</table>`;
         } else if (style === 'modern') {
             headerHtml = `<div style="background:#eef3fc; padding:18px; border-radius:20px; margin-bottom:25px;"><h2>${escapeHtml(data.examTitle)}</h2><div style="display:flex; flex-wrap:wrap; gap:12px;"><div><strong>Teacher:</strong> ${escapeHtml(data.teacherName)}</div><div><strong>Duration:</strong> ${escapeHtml(data.duration)}</div><div><strong>School:</strong> ${escapeHtml(data.schoolName)}</div><div><strong>Student:</strong> ${escapeHtml(data.studentName)}</div><div><strong>Class:</strong> ${escapeHtml(data.class)}</div>${gradeDisplay?`<div>${gradeDisplay}</div>`:''}</div></div>`;
         } else {
@@ -762,9 +773,7 @@
             .content { margin-left:15px; }
             img { max-width:100%; height:auto; }
             footer { margin-top:40px; text-align:center; font-size:0.8rem; border-top:1px solid #ccc; padding-top:8px; }
-            @media print {
-                .page-break { page-break-before: always; }
-            }
+            @media print { .page-break { page-break-before: always; } }
         </style>
         </head><body>
         ${headerHtml}
