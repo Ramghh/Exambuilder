@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Builder | مع محرر أسئلة غني</title>
+    <title>Exam Builder | خانات تعبئة، مربعات كبيرة، خلفية مائية، صوت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
@@ -53,6 +53,7 @@
         body.dark-mode .designer-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border-color: rgba(255,255,255,0.2); }
         body.dark-mode .designer-card .name { color: #ffd966; }
         body.dark-mode .designer-card .title { color: #cbdae2; }
+        body.dark-mode .watermark-preview { background: #2a4a5a; color: #8aaebd; }
 
         .container {
             max-width: 1300px;
@@ -115,7 +116,11 @@
             opacity: 0.8;
             letter-spacing: 0.3px;
         }
-        .toolbar-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .toolbar-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
         .btn {
             background: #2c5a6e;
             border: none;
@@ -292,6 +297,13 @@
         .word-counter span { font-weight: 700; }
         .word-counter.warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
         .word-counter.exceed { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .watermark-preview {
+            font-size: 0.8rem;
+            background: #eef3fa;
+            padding: 4px 10px;
+            border-radius: 40px;
+            display: inline-block;
+        }
         @media (max-width: 700px) {
             .tab { font-size: 1rem; padding: 12px 0; }
             .tab-content { padding: 18px; }
@@ -359,9 +371,34 @@
         </div>
 
         <div class="print-panel">
-            <div class="control-group"><label><i class="fas fa-eye-slash"></i> Show marks:</label><label><input type="radio" name="showMarks" value="show" checked> Show</label><label><input type="radio" name="showMarks" value="hide"> Hide</label></div>
-            <div class="control-group"><label><i class="fas fa-print"></i> Page breaks:</label><label><input type="radio" name="pageBreaks" value="none" checked> None</label><label><input type="radio" name="pageBreaks" value="between"> Between sections</label><label><input type="radio" name="pageBreaks" value="beforeEach"> Before each section</label></div>
-            <div class="control-group"><label><i class="fas fa-text-height"></i> Font size:</label><select id="fontSizeSelect"><option value="11pt">11pt</option><option value="12pt" selected>12pt</option><option value="14pt">14pt</option></select></div>
+            <div class="control-group">
+                <label><i class="fas fa-eye-slash"></i> Show marks:</label>
+                <label><input type="radio" name="showMarks" value="show" checked> Show</label>
+                <label><input type="radio" name="showMarks" value="hide"> Hide</label>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-print"></i> Page breaks:</label>
+                <label><input type="radio" name="pageBreaks" value="none" checked> None</label>
+                <label><input type="radio" name="pageBreaks" value="between"> Between sections</label>
+                <label><input type="radio" name="pageBreaks" value="beforeEach"> Before each section</label>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-text-height"></i> Font size:</label>
+                <select id="fontSizeSelect">
+                    <option value="11pt">11pt</option>
+                    <option value="12pt" selected>12pt</option>
+                    <option value="14pt">14pt</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-water"></i> Watermark:</label>
+                <input type="text" id="watermarkText" placeholder="e.g., CONFIDENTIAL" style="width:130px;">
+                <span class="watermark-preview" id="watermarkPreview">لا خلفية</span>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-volume-up"></i> Sound effects:</label>
+                <label><input type="checkbox" id="soundEnabled" checked> Enable</label>
+            </div>
         </div>
 
         <div class="form-grid">
@@ -384,7 +421,6 @@
                     <button onclick="formatDoc('reading', 'italic')"><i class="fas fa-italic"></i></button>
                     <button onclick="formatDoc('reading', 'underline')"><i class="fas fa-underline"></i></button>
                     <button onclick="formatDoc('reading', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                    <button onclick="insertImageUrl('reading')"><i class="fas fa-link"></i> URL Image</button>
                     <button onclick="uploadLocalImage('reading')"><i class="fas fa-upload"></i> Upload Image</button>
                     <button onclick="formatDoc('reading', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
@@ -395,17 +431,17 @@
                     <span><i class="fas fa-chart-line"></i> Limit: <input type="number" id="readingWordLimit" value="250" min="10" max="1000" style="width:70px;"> words</span>
                     <span id="readingWordWarning"></span>
                 </div>
-
-                <!-- شريط أدوات الأسئلة (Language editing toolbar for questions) -->
                 <div class="rich-toolbar" style="margin-top: 10px;">
                     <button onclick="formatDoc('readingQuestions', 'bold')"><i class="fas fa-bold"></i></button>
                     <button onclick="formatDoc('readingQuestions', 'italic')"><i class="fas fa-italic"></i></button>
                     <button onclick="formatDoc('readingQuestions', 'underline')"><i class="fas fa-underline"></i></button>
                     <button onclick="formatDoc('readingQuestions', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
                     <button onclick="insertImageInQuestions('readingQuestions')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="insertCheckbox('readingQuestions')"><i class="fas fa-check-square"></i> ⬜ Checkbox</button>
+                    <button onclick="insertBlank('readingQuestions')"><i class="fas fa-underline"></i> ___ Blank</button>
                     <button onclick="formatDoc('readingQuestions', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
-                <div id="readingQuestionsEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. Tick (✓) the most appropriate title for the text. (1 mark)<br>Malala's Medical Recovery in England<br>A Brave Girl's Fight for Girls' Education<br>The History of the United Nations<br><br>2. Correct these false statements with clear justifications from the text. (2 marks)<br>... </div>
+                <div id="readingQuestionsEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. Tick (✓) the most appropriate title for the text. (1 mark)<br>Malala's Medical Recovery in England<br>A Brave Girl's Fight for Girls' Education<br>The History of the United Nations<br><br>2. Correct these false statements with clear justifications from the text. (2 marks)<br>...</div>
                 <input type="hidden" id="readingQuestionsHidden">
             </div>
 
@@ -416,8 +452,9 @@
                     <button onclick="formatDoc('language', 'italic')"><i class="fas fa-italic"></i></button>
                     <button onclick="formatDoc('language', 'underline')"><i class="fas fa-underline"></i></button>
                     <button onclick="formatDoc('language', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                    <button onclick="insertImageUrl('language')"><i class="fas fa-link"></i> URL Image</button>
                     <button onclick="uploadLocalImage('language')"><i class="fas fa-upload"></i> Upload Image</button>
+                    <button onclick="insertCheckbox('language')"><i class="fas fa-check-square"></i> ⬜ Checkbox</button>
+                    <button onclick="insertBlank('language')"><i class="fas fa-underline"></i> ___ Blank</button>
                     <button onclick="formatDoc('language', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
                 <div id="languageEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. <strong>Put the verbs in the correct tense</strong> (simple past / present perfect). (4 marks)<br>2. <em>Fill in the blanks</em> with the right preposition. (2 marks)<br>3. Match the words with their synonyms. (2 marks)</div>
@@ -431,8 +468,9 @@
                     <button onclick="formatDoc('writing', 'italic')"><i class="fas fa-italic"></i></button>
                     <button onclick="formatDoc('writing', 'underline')"><i class="fas fa-underline"></i></button>
                     <button onclick="formatDoc('writing', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                    <button onclick="insertImageUrl('writing')"><i class="fas fa-link"></i> URL Image</button>
                     <button onclick="uploadLocalImage('writing')"><i class="fas fa-upload"></i> Upload Image</button>
+                    <button onclick="insertCheckbox('writing')"><i class="fas fa-check-square"></i> ⬜ Checkbox</button>
+                    <button onclick="insertBlank('writing')"><i class="fas fa-underline"></i> ___ Blank</button>
                     <button onclick="formatDoc('writing', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
                 <div id="writingEditor" class="rich-editor" contenteditable="true" spellcheck="true">Describe a memorable journey you made and explain why it was important to you. (60-80 words)</div>
@@ -440,7 +478,7 @@
             </div>
         </div>
 
-        <!-- Mid-Term Test Sections (مع محرر أسئلة للاستماع أيضاً) -->
+        <!-- Mid-Term Test Sections -->
         <div id="midtermSections" style="display:none;">
             <div class="section-card">
                 <div class="section-title">🎧 Listening Comprehension <span class="marks-text">(8 marks)</span></div>
@@ -449,19 +487,19 @@
                     <button onclick="formatDoc('listening', 'italic')"><i class="fas fa-italic"></i></button>
                     <button onclick="formatDoc('listening', 'underline')"><i class="fas fa-underline"></i></button>
                     <button onclick="formatDoc('listening', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                    <button onclick="insertImageUrl('listening')"><i class="fas fa-link"></i> URL Image</button>
                     <button onclick="uploadLocalImage('listening')"><i class="fas fa-upload"></i> Upload Image</button>
                     <button onclick="formatDoc('listening', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
                 <div id="listeningEditor" class="rich-editor" contenteditable="true" spellcheck="true">[Listening script] You will hear a conversation between two friends about their summer plans. Listen carefully and answer the questions below.</div>
                 <input type="hidden" id="listeningHidden">
-                <!-- شريط أدوات أسئلة الاستماع -->
                 <div class="rich-toolbar" style="margin-top: 10px;">
                     <button onclick="formatDoc('listeningQuestions', 'bold')"><i class="fas fa-bold"></i></button>
                     <button onclick="formatDoc('listeningQuestions', 'italic')"><i class="fas fa-italic"></i></button>
                     <button onclick="formatDoc('listeningQuestions', 'underline')"><i class="fas fa-underline"></i></button>
                     <button onclick="formatDoc('listeningQuestions', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
                     <button onclick="insertImageInQuestions('listeningQuestions')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="insertCheckbox('listeningQuestions')"><i class="fas fa-check-square"></i> ⬜ Checkbox</button>
+                    <button onclick="insertBlank('listeningQuestions')"><i class="fas fa-underline"></i> ___ Blank</button>
                     <button onclick="formatDoc('listeningQuestions', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
                 <div id="listeningQuestionsEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. What are the two friends planning?<br>2. Where will they go?<br>3. When are they leaving?<br>4. How will they travel?</div>
@@ -475,8 +513,9 @@
                     <button onclick="formatDoc('midLanguage', 'italic')"><i class="fas fa-italic"></i></button>
                     <button onclick="formatDoc('midLanguage', 'underline')"><i class="fas fa-underline"></i></button>
                     <button onclick="formatDoc('midLanguage', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                    <button onclick="insertImageUrl('midLanguage')"><i class="fas fa-link"></i> URL Image</button>
                     <button onclick="uploadLocalImage('midLanguage')"><i class="fas fa-upload"></i> Upload Image</button>
+                    <button onclick="insertCheckbox('midLanguage')"><i class="fas fa-check-square"></i> ⬜ Checkbox</button>
+                    <button onclick="insertBlank('midLanguage')"><i class="fas fa-underline"></i> ___ Blank</button>
                     <button onclick="formatDoc('midLanguage', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
                 <div id="midLanguageEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. Complete the sentences with the correct form of the verb (5 marks)<br>2. Rewrite the sentences in the passive voice (4 marks)<br>3. Choose the correct word to fill the gaps (3 marks)</div>
@@ -494,7 +533,48 @@
 </div>
 
 <script>
-    // ========== رفع الصور من الجهاز (للمحررات) ==========
+    // ========== Sound effect ==========
+    let soundEnabled = true;
+    const soundCheckbox = document.getElementById('soundEnabled');
+    if (soundCheckbox) {
+        soundCheckbox.addEventListener('change', () => { soundEnabled = soundCheckbox.checked; });
+    }
+    function playBeep() {
+        if (!soundEnabled) return;
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.frequency.value = 880;
+            gainNode.gain.value = 0.2;
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+            oscillator.stop(audioCtx.currentTime + 0.3);
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        } catch(e) { console.log("Audio not supported"); }
+    }
+
+    // ========== Insert checkbox (⬜ large) at cursor ==========
+    function insertCheckbox(editorId) {
+        let editor = document.getElementById(editorId + 'Editor');
+        if (!editor) return;
+        editor.focus();
+        document.execCommand('insertText', false, '⬜ ');
+        syncRichText(editorId);
+    }
+
+    // ========== Insert blank (______) at cursor ==========
+    function insertBlank(editorId) {
+        let editor = document.getElementById(editorId + 'Editor');
+        if (!editor) return;
+        editor.focus();
+        document.execCommand('insertText', false, '__________');
+        syncRichText(editorId);
+    }
+
+    // ========== Local image upload ==========
     function uploadLocalImage(editorId) {
         let input = document.createElement('input');
         input.type = 'file';
@@ -518,20 +598,6 @@
         input.click();
     }
 
-    function insertImageUrl(editorId) {
-        let url = prompt("Enter image URL:");
-        if (url) {
-            let editor = document.getElementById(editorId + 'Editor');
-            if (editor) {
-                editor.focus();
-                document.execCommand('insertImage', false, url);
-                syncRichText(editorId);
-                if (editorId === 'reading') updateReadingWordCount();
-            }
-        }
-    }
-
-    // خاص لإدراج صورة في محرر الأسئلة
     function insertImageInQuestions(editorId) {
         let url = prompt("Enter image URL:");
         if (url) {
@@ -544,7 +610,6 @@
         }
     }
 
-    // دالة التنسيق العامة
     function formatDoc(editorId, command) {
         let editor = document.getElementById(editorId + 'Editor');
         if (!editor) return;
@@ -564,13 +629,11 @@
         if (editor && hidden) hidden.value = editor.innerHTML;
     }
 
-    // مزامنة جميع المحررات كل نصف ثانية
     setInterval(() => {
         ['reading', 'readingQuestions', 'language', 'writing', 'listening', 'listeningQuestions', 'midLanguage'].forEach(id => syncRichText(id));
         updateReadingWordCount();
     }, 500);
 
-    // ========== عداد الكلمات للنص ==========
     function getWordCountFromHtml(html) {
         let temp = document.createElement('div');
         temp.innerHTML = html;
@@ -589,12 +652,10 @@
         let counterDiv = document.getElementById('readingWordCounter');
         if (count > limit) {
             warningSpan.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Exceeds limit (${count}/${limit})`;
-            counterDiv.classList.add('exceed');
-            counterDiv.classList.remove('warning');
+            counterDiv.classList.add('exceed'); counterDiv.classList.remove('warning');
         } else if (count > limit * 0.9) {
             warningSpan.innerHTML = `<i class="fas fa-clock"></i> Near limit (${count}/${limit})`;
-            counterDiv.classList.add('warning');
-            counterDiv.classList.remove('exceed');
+            counterDiv.classList.add('warning'); counterDiv.classList.remove('exceed');
         } else {
             warningSpan.innerHTML = '';
             counterDiv.classList.remove('warning', 'exceed');
@@ -604,7 +665,7 @@
     document.getElementById('readingWordLimit')?.addEventListener('input', updateReadingWordCount);
     document.getElementById('readingEditor')?.addEventListener('input', updateReadingWordCount);
 
-    // ========== المتغيرات الأساسية ==========
+    // ========== Data handling ==========
     const examTitle = document.getElementById('examTitle');
     const teacherName = document.getElementById('teacherName');
     const duration = document.getElementById('duration');
@@ -622,7 +683,17 @@
     const showMarksRadios = document.querySelectorAll('input[name="showMarks"]');
     const pageBreaksRadios = document.querySelectorAll('input[name="pageBreaks"]');
     const fontSizeSelect = document.getElementById('fontSizeSelect');
+    const watermarkTextInput = document.getElementById('watermarkText');
+    const watermarkPreviewSpan = document.getElementById('watermarkPreview');
     let currentExamType = 'global';
+
+    function updateWatermarkPreview() {
+        let txt = watermarkTextInput.value.trim();
+        if (txt) watermarkPreviewSpan.textContent = txt;
+        else watermarkPreviewSpan.textContent = 'لا خلفية';
+    }
+    watermarkTextInput.addEventListener('input', updateWatermarkPreview);
+    updateWatermarkPreview();
 
     function toggleExamTypeVisibility() {
         if (currentExamType === 'global') {
@@ -645,8 +716,8 @@
     showMarksRadios.forEach(r => r.addEventListener('change', updatePreview));
     pageBreaksRadios.forEach(r => r.addEventListener('change', updatePreview));
     fontSizeSelect.addEventListener('change', updatePreview);
+    watermarkTextInput.addEventListener('input', updatePreview);
 
-    // جمع البيانات
     function getCurrentExamData() {
         syncRichText('reading');
         syncRichText('readingQuestions');
@@ -676,11 +747,11 @@
             showMarks: document.querySelector('input[name="showMarks"]:checked').value === 'show',
             pageBreaks: document.querySelector('input[name="pageBreaks"]:checked').value,
             fontSize: fontSizeSelect.value,
-            readingWordLimit: parseInt(document.getElementById('readingWordLimit')?.value, 10) || 250
+            readingWordLimit: parseInt(document.getElementById('readingWordLimit')?.value, 10) || 250,
+            watermark: watermarkTextInput.value.trim()
         };
     }
 
-    // استعادة البيانات
     function setExamData(data) {
         examTitle.value = data.examTitle || '';
         teacherName.value = data.teacherName || '';
@@ -720,23 +791,25 @@
         if (data.pageBreaks) document.querySelector(`input[name="pageBreaks"][value="${data.pageBreaks}"]`).checked = true;
         if (data.fontSize) fontSizeSelect.value = data.fontSize;
         if (data.readingWordLimit && document.getElementById('readingWordLimit')) document.getElementById('readingWordLimit').value = data.readingWordLimit;
+        if (data.watermark && watermarkTextInput) watermarkTextInput.value = data.watermark;
+        updateWatermarkPreview();
         ['reading', 'readingQuestions', 'language', 'writing', 'listening', 'listeningQuestions', 'midLanguage'].forEach(id => syncRichText(id));
         updateReadingWordCount();
     }
 
-    // ========== Local Storage (كما هو) ==========
+    // ========== Local Storage ==========
     const STORAGE_KEY = 'examCollectionPro';
     const AUTO_DRAFT_KEY = 'autoDraftExam';
     function getExamCollection() { let s = localStorage.getItem(STORAGE_KEY); try { return s ? JSON.parse(s) : {}; } catch(e){ return {}; } }
     function saveExamCollection(coll) { localStorage.setItem(STORAGE_KEY, JSON.stringify(coll)); updateDropdown(coll); }
     function updateDropdown(coll) { let sel = document.getElementById('examListSelect'); sel.innerHTML = '<option value="">-- Select exam --</option>'; for(let name in coll) { let opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt); } }
-    function saveCurrentAsNew() { let name = prompt("Exam name:", examTitle.value); if(!name) return; let coll = getExamCollection(); coll[name.trim()] = getCurrentExamData(); saveExamCollection(coll); alert("Saved: "+name); autoSaveStatus.innerHTML = `<i class="fas fa-check-circle"></i> Manual save at ${new Date().toLocaleTimeString()}`; }
-    function loadSelected() { let sel = document.getElementById('examListSelect').value; if(!sel) return; let coll = getExamCollection(); if(coll[sel]) setExamData(coll[sel]); else alert("Not found"); updatePreview(); }
+    function saveCurrentAsNew() { let name = prompt("Exam name:", examTitle.value); if(!name) return; let coll = getExamCollection(); coll[name.trim()] = getCurrentExamData(); saveExamCollection(coll); alert("Saved: "+name); autoSaveStatus.innerHTML = `<i class="fas fa-check-circle"></i> Manual save at ${new Date().toLocaleTimeString()}`; playBeep(); }
+    function loadSelected() { let sel = document.getElementById('examListSelect').value; if(!sel) return; let coll = getExamCollection(); if(coll[sel]) setExamData(coll[sel]); else alert("Not found"); updatePreview(); playBeep(); }
     function deleteSelected() { let sel = document.getElementById('examListSelect').value; if(!sel) return; if(confirm("Delete?")) { let coll = getExamCollection(); delete coll[sel]; saveExamCollection(coll); } }
     function autoSaveDraft() { const data = getCurrentExamData(); localStorage.setItem(AUTO_DRAFT_KEY, JSON.stringify(data)); autoSaveStatus.innerHTML = `<i class="fas fa-save"></i> Draft saved at ${new Date().toLocaleTimeString()}`; setTimeout(() => { if (autoSaveStatus.innerHTML.includes('Draft saved')) autoSaveStatus.innerHTML = `<i class="fas fa-check-circle"></i> Ready`; }, 2000); }
     setInterval(autoSaveDraft, 30000);
-    function checkForDraft() { const draft = localStorage.getItem(AUTO_DRAFT_KEY); if (draft && confirm("Restore auto-saved draft?")) { try { setExamData(JSON.parse(draft)); autoSaveStatus.innerHTML = `<i class="fas fa-undo-alt"></i> Draft restored`; } catch(e){} } }
-    function duplicateExam() { let current = getCurrentExamData(); current.examTitle = current.examTitle + " (Copy)"; setExamData(current); alert("Duplicated. Click Save Exam to store."); autoSaveDraft(); }
+    function checkForDraft() { const draft = localStorage.getItem(AUTO_DRAFT_KEY); if (draft && confirm("Restore auto-saved draft?")) { try { setExamData(JSON.parse(draft)); autoSaveStatus.innerHTML = `<i class="fas fa-undo-alt"></i> Draft restored`; playBeep(); } catch(e){} } }
+    function duplicateExam() { let current = getCurrentExamData(); current.examTitle = current.examTitle + " (Copy)"; setExamData(current); alert("Duplicated. Click Save Exam to store."); autoSaveDraft(); playBeep(); }
 
     // ========== Dark Mode ==========
     function toggleDarkMode() {
@@ -756,17 +829,16 @@
     }
 
     // ========== JSON ==========
-    function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); }
-    function importJSON() { let input = document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let imported=JSON.parse(ev.target.result); if(confirm("Add to library (OK) or load into editor (Cancel)?")){ let name=prompt("Save as name:", imported.examTitle||"Imported"); if(name){ let coll=getExamCollection(); coll[name]=imported; saveExamCollection(coll); } } else { setExamData(imported); updatePreview(); } } catch(err){ alert("Invalid JSON"); } }; reader.readAsText(file); }; input.click(); }
+    function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); playBeep(); }
+    function importJSON() { let input = document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let imported=JSON.parse(ev.target.result); if(confirm("Add to library (OK) or load into editor (Cancel)?")){ let name=prompt("Save as name:", imported.examTitle||"Imported"); if(name){ let coll=getExamCollection(); coll[name]=imported; saveExamCollection(coll); } } else { setExamData(imported); updatePreview(); } playBeep(); } catch(err){ alert("Invalid JSON"); } }; reader.readAsText(file); }; input.click(); }
 
-    // ========== مولد HTML للتصدير (مع دعم الأسئلة المنسقة) ==========
+    // ========== HTML generator with watermark ==========
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
     function generateExamHTML() {
         let data = getCurrentExamData();
         let style = data.headerStyle;
         let gradeDisplay = data.grade.trim() ? `<strong>Grade:</strong> ${escapeHtml(data.grade)}` : '';
         let headerHtml = '';
-        // (أنماط الرأس كما هي سابقاً - اختصاراً للعرض)
         if (style === 'threecol1') {
             headerHtml = `<div style="background:#f4f9ff; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; text-align:center;"><div><strong>📌 Exam</strong><br>${escapeHtml(data.examTitle)}</div><div><strong>👩‍🏫 Teacher</strong><br>${escapeHtml(data.teacherName)}</div><div><strong>⏱️ Duration</strong><br>${escapeHtml(data.duration)}</div></div><hr><div style="display:grid; grid-template-columns:repeat(2,1fr); text-align:center;"><div><strong>🏫 School</strong><br>${escapeHtml(data.schoolName)}</div><div><strong>📚 Class</strong><br>${escapeHtml(data.class)}</div></div><div style="margin-top:10px; text-align:center;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)} ${gradeDisplay ? `| ${gradeDisplay}` : ''}</div></div>`;
         } else if (style === 'threecol2') {
@@ -775,13 +847,13 @@
             headerHtml = `<div style="display:flex; justify-content:space-between; flex-wrap:wrap; background:#eef3fa; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="flex:1;"><strong>📌 Exam:</strong> ${escapeHtml(data.examTitle)}<br><strong>👩‍🏫 Teacher:</strong> ${escapeHtml(data.teacherName)}<br><strong>⏱️ Duration:</strong> ${escapeHtml(data.duration)}<br><strong>🏫 School:</strong> ${escapeHtml(data.schoolName)}</div><div style="flex:1;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)}<br><strong>📚 Class:</strong> ${escapeHtml(data.class)}<br>${data.academicYear ? `<strong>📅 Year:</strong> ${escapeHtml(data.academicYear)}<br>` : ''}${gradeDisplay ? `<strong>⭐ Grade:</strong> ${gradeDisplay}` : ''}</div></div>`;
         } else if (style === 'classic') {
             headerHtml = `<table style="width:100%; border-collapse:collapse; margin-bottom:25px;">`+
-                `<tr><th style="border:1px solid #888; padding:8px;">Exam</th><td>${escapeHtml(data.examTitle)}</td>`+
-                `<tr><th>Teacher(s)</th><td>${escapeHtml(data.teacherName)}</td>`+
-                `<tr><th>Duration</th><td>${escapeHtml(data.duration)}</td>`+
-                `<tr><th>School</th><td>${escapeHtml(data.schoolName)}</td>`+
-                `<tr><th>Student</th><td>${escapeHtml(data.studentName)}</td>`+
-                `<tr><th>Class</th><td>${escapeHtml(data.class)}</td>`+
-                (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td>`:'')+`</table>`;
+                `<tr><th style="border:1px solid #888; padding:8px;">Exam</th><td>${escapeHtml(data.examTitle)}</td></td>`+
+                `<tr><th style="border:1px solid #888; padding:8px;">Teacher(s)</th><td>${escapeHtml(data.teacherName)}</td></tr>`+
+                `<tr><th style="border:1px solid #888; padding:8px;">Duration</th><td>${escapeHtml(data.duration)}</td></td>`+
+                `<tr><th style="border:1px solid #888; padding:8px;">School</th><td>${escapeHtml(data.schoolName)}</td></tr>`+
+                `<tr><th style="border:1px solid #888; padding:8px;">Student</th><td>${escapeHtml(data.studentName)}</td></tr>`+
+                `<tr><th style="border:1px solid #888; padding:8px;">Class</th><td>${escapeHtml(data.class)}</td></tr>`+
+                (gradeDisplay?`<tr><th style="border:1px solid #888; padding:8px;">Grade</th><td style="border:1px solid #888; padding:8px;">${gradeDisplay}</td></tr>`:'')+`</table>`;
         } else if (style === 'modern') {
             headerHtml = `<div style="background:#eef3fc; padding:18px; border-radius:20px; margin-bottom:25px;"><h2>${escapeHtml(data.examTitle)}</h2><div style="display:flex; flex-wrap:wrap; gap:12px;"><div><strong>Teacher:</strong> ${escapeHtml(data.teacherName)}</div><div><strong>Duration:</strong> ${escapeHtml(data.duration)}</div><div><strong>School:</strong> ${escapeHtml(data.schoolName)}</div><div><strong>Student:</strong> ${escapeHtml(data.studentName)}</div><div><strong>Class:</strong> ${escapeHtml(data.class)}</div>${gradeDisplay?`<div>${gradeDisplay}</div>`:''}</div></div>`;
         } else {
@@ -822,10 +894,15 @@
             `;
         }
 
+        let watermarkHtml = '';
+        if (data.watermark) {
+            watermarkHtml = `<div style="position: fixed; bottom: 20px; right: 20px; opacity: 0.3; font-size: 20px; font-weight: bold; color: #999; transform: rotate(-15deg); pointer-events: none; z-index: 1000;">${escapeHtml(data.watermark)}</div>`;
+        }
+
         return `<!DOCTYPE html>
         <html><head><meta charset="UTF-8"><title>${escapeHtml(data.examTitle)}</title>
         <style>
-            body { font-family: 'Calibri', 'Times New Roman', serif; margin: 2cm 2cm; line-height:1.4; font-size: ${data.fontSize || '12pt'}; }
+            body { font-family: 'Calibri', 'Times New Roman', serif; margin: 2cm 2cm; line-height:1.4; font-size: ${data.fontSize || '12pt'}; position: relative; }
             .section-title { font-size:1.4rem; font-weight:bold; background:#f0f3f8; padding:6px 15px; border-radius:30px; margin:25px 0 15px; }
             .content { margin-left:15px; }
             img { max-width:100%; height:auto; }
@@ -833,17 +910,37 @@
             @media print { .page-break { page-break-before: always; } }
         </style>
         </head><body>
+        ${watermarkHtml}
         ${headerHtml}
         ${bodyHtml}
         <footer>Total: 20 points</footer>
         </body></html>`;
     }
 
-    function exportToWord() { let html = generateExamHTML(); let blob = new Blob([html], {type:'application/msword'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (examTitle.value.replace(/\s+/g,'_')||'exam')+'.doc'; a.click(); URL.revokeObjectURL(a.href); }
-    function printExam() { let win = window.open(); win.document.write(generateExamHTML()); win.document.close(); win.print(); }
-    function updatePreview() { let html = generateExamHTML(); document.getElementById('previewIframe').srcdoc = html; }
+    function exportToWord() { 
+        let html = generateExamHTML(); 
+        let blob = new Blob([html], {type:'application/msword'}); 
+        let a = document.createElement('a'); 
+        a.href = URL.createObjectURL(blob); 
+        a.download = (examTitle.value.replace(/\s+/g,'_')||'exam')+'.doc'; 
+        a.click(); 
+        URL.revokeObjectURL(a.href);
+        playBeep();
+    }
 
-    // ========== تبويبات ==========
+    function printExam() { 
+        let win = window.open(); 
+        win.document.write(generateExamHTML()); 
+        win.document.close(); 
+        win.print();
+        playBeep();
+    }
+
+    function updatePreview() { 
+        let html = generateExamHTML(); 
+        document.getElementById('previewIframe').srcdoc = html; 
+    }
+
     const tabs = document.querySelectorAll('.tab');
     const contents = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
@@ -857,7 +954,6 @@
         });
     });
 
-    // ========== ربط الأزرار ==========
     document.getElementById('duplicateExamBtn').addEventListener('click', duplicateExam);
     document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
     document.getElementById('printExamBtn').addEventListener('click', printExam);
@@ -869,7 +965,6 @@
     document.getElementById('exportWordBtn').addEventListener('click', exportToWord);
     document.getElementById('refreshPreview').addEventListener('click', updatePreview);
 
-    // ========== بدء التشغيل ==========
     updateDropdown(getExamCollection());
     ['reading', 'readingQuestions', 'language', 'writing', 'listening', 'listeningQuestions', 'midLanguage'].forEach(id => syncRichText(id));
     checkForDraft();
