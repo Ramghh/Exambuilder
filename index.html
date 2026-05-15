@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Builder | Gharbi Ramzi</title>
+    <title>Exam Builder | مع محرر أسئلة غني</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
@@ -75,7 +75,6 @@
             margin: 0;
             font-size: 1.7rem;
         }
-        /* تصميم بطاقة المصمم بشكل أنيق وجذاب */
         .designer-card {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(4px);
@@ -183,11 +182,6 @@
             font-size: 0.95rem;
             spellcheck: true;
         }
-        textarea.auto-expand {
-            overflow-y: hidden;
-            resize: vertical;
-            min-height: 80px;
-        }
         .rich-toolbar {
             background: #f0f4f9;
             border-radius: 20px 20px 0 0;
@@ -208,7 +202,7 @@
             border: 1.5px solid #cfdde6;
             border-radius: 0 0 20px 20px;
             padding: 12px;
-            min-height: 200px;
+            min-height: 150px;
             background: white;
             overflow-y: auto;
         }
@@ -287,6 +281,7 @@
             border-radius: 40px;
             padding: 6px 15px;
             margin-top: 10px;
+            margin-bottom: 10px;
             display: inline-flex;
             align-items: center;
             gap: 15px;
@@ -302,7 +297,6 @@
             .tab-content { padding: 18px; }
             .print-panel { flex-direction: column; align-items: stretch; }
             .designer-card { padding: 4px 12px; }
-            .designer-info .name { font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -312,7 +306,6 @@
         <div class="app-title">
             <h1><i class="fas fa-chalkboard-teacher"></i> Exam Builder Pro</h1>
         </div>
-        <!-- بطاقة المصمم الأنيقة -->
         <div class="designer-card">
             <div class="designer-icon"><i class="fas fa-feather-alt"></i></div>
             <div class="designer-info">
@@ -395,15 +388,27 @@
                     <button onclick="uploadLocalImage('reading')"><i class="fas fa-upload"></i> Upload Image</button>
                     <button onclick="formatDoc('reading', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
                 </div>
-                <div id="readingEditor" class="rich-editor" contenteditable="true" spellcheck="true">Malala Yousafzai is a famous young peace activist from Pakistan. She was born on July 12, 1997. She fought for girls' education and became the youngest Nobel Prize winner.</div>
+                <div id="readingEditor" class="rich-editor" contenteditable="true" spellcheck="true">Malala Yousafzai is a famous young peace activist from Pakistan. She was born on July 12, 1997. She fought for girls' education and became the youngest Nobel Prize winner. Today, she continues to travel the world through her charity, the Malala Fund, ensuring that every girl can complete 12 years of free, quality education.</div>
                 <input type="hidden" id="readingHidden">
                 <div class="word-counter" id="readingWordCounter">
                     <span><i class="fas fa-calculator"></i> Word count: <span id="readingWordCount">0</span></span>
                     <span><i class="fas fa-chart-line"></i> Limit: <input type="number" id="readingWordLimit" value="250" min="10" max="1000" style="width:70px;"> words</span>
                     <span id="readingWordWarning"></span>
                 </div>
-                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="readingQuestions" class="auto-expand" rows="1" spellcheck="true">1. Who is Malala Yousafzai?&#10;2. What is she known for?&#10;3. When was she born?&#10;4. What prize did she win?</textarea></div>
+
+                <!-- شريط أدوات الأسئلة (Language editing toolbar for questions) -->
+                <div class="rich-toolbar" style="margin-top: 10px;">
+                    <button onclick="formatDoc('readingQuestions', 'bold')"><i class="fas fa-bold"></i></button>
+                    <button onclick="formatDoc('readingQuestions', 'italic')"><i class="fas fa-italic"></i></button>
+                    <button onclick="formatDoc('readingQuestions', 'underline')"><i class="fas fa-underline"></i></button>
+                    <button onclick="formatDoc('readingQuestions', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                    <button onclick="insertImageInQuestions('readingQuestions')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="formatDoc('readingQuestions', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+                </div>
+                <div id="readingQuestionsEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. Tick (✓) the most appropriate title for the text. (1 mark)<br>Malala's Medical Recovery in England<br>A Brave Girl's Fight for Girls' Education<br>The History of the United Nations<br><br>2. Correct these false statements with clear justifications from the text. (2 marks)<br>... </div>
+                <input type="hidden" id="readingQuestionsHidden">
             </div>
+
             <div class="section-card">
                 <div class="section-title">✍️ Language Exercises <span class="marks-text">(8 marks)</span></div>
                 <div class="rich-toolbar">
@@ -418,6 +423,7 @@
                 <div id="languageEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. <strong>Put the verbs in the correct tense</strong> (simple past / present perfect). (4 marks)<br>2. <em>Fill in the blanks</em> with the right preposition. (2 marks)<br>3. Match the words with their synonyms. (2 marks)</div>
                 <input type="hidden" id="languageHidden">
             </div>
+
             <div class="section-card">
                 <div class="section-title">✒️ Writing Production <span class="marks-text">(6 marks)</span></div>
                 <div class="rich-toolbar">
@@ -434,7 +440,7 @@
             </div>
         </div>
 
-        <!-- Mid-Term Test Sections -->
+        <!-- Mid-Term Test Sections (مع محرر أسئلة للاستماع أيضاً) -->
         <div id="midtermSections" style="display:none;">
             <div class="section-card">
                 <div class="section-title">🎧 Listening Comprehension <span class="marks-text">(8 marks)</span></div>
@@ -449,8 +455,19 @@
                 </div>
                 <div id="listeningEditor" class="rich-editor" contenteditable="true" spellcheck="true">[Listening script] You will hear a conversation between two friends about their summer plans. Listen carefully and answer the questions below.</div>
                 <input type="hidden" id="listeningHidden">
-                <div class="input-group" style="margin-top: 15px;"><label>Questions (one per line):</label><textarea id="listeningQuestions" class="auto-expand" rows="1" spellcheck="true">1. What are the two friends planning?&#10;2. Where will they go?&#10;3. When are they leaving?&#10;4. How will they travel?</textarea></div>
+                <!-- شريط أدوات أسئلة الاستماع -->
+                <div class="rich-toolbar" style="margin-top: 10px;">
+                    <button onclick="formatDoc('listeningQuestions', 'bold')"><i class="fas fa-bold"></i></button>
+                    <button onclick="formatDoc('listeningQuestions', 'italic')"><i class="fas fa-italic"></i></button>
+                    <button onclick="formatDoc('listeningQuestions', 'underline')"><i class="fas fa-underline"></i></button>
+                    <button onclick="formatDoc('listeningQuestions', 'insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
+                    <button onclick="insertImageInQuestions('listeningQuestions')"><i class="fas fa-image"></i> Image</button>
+                    <button onclick="formatDoc('listeningQuestions', 'removeFormat')"><i class="fas fa-eraser"></i> Clear</button>
+                </div>
+                <div id="listeningQuestionsEditor" class="rich-editor" contenteditable="true" spellcheck="true">1. What are the two friends planning?<br>2. Where will they go?<br>3. When are they leaving?<br>4. How will they travel?</div>
+                <input type="hidden" id="listeningQuestionsHidden">
             </div>
+
             <div class="section-card">
                 <div class="section-title">✍️ Language Exercises <span class="marks-text">(12 marks)</span></div>
                 <div class="rich-toolbar">
@@ -477,8 +494,7 @@
 </div>
 
 <script>
-    // جميع التوابع السابقة (same as before – full functionality)
-    // ========== Local image upload ==========
+    // ========== رفع الصور من الجهاز (للمحررات) ==========
     function uploadLocalImage(editorId) {
         let input = document.createElement('input');
         input.type = 'file';
@@ -515,6 +531,20 @@
         }
     }
 
+    // خاص لإدراج صورة في محرر الأسئلة
+    function insertImageInQuestions(editorId) {
+        let url = prompt("Enter image URL:");
+        if (url) {
+            let editor = document.getElementById(editorId + 'Editor');
+            if (editor) {
+                editor.focus();
+                document.execCommand('insertImage', false, url);
+                syncRichText(editorId);
+            }
+        }
+    }
+
+    // دالة التنسيق العامة
     function formatDoc(editorId, command) {
         let editor = document.getElementById(editorId + 'Editor');
         if (!editor) return;
@@ -534,11 +564,13 @@
         if (editor && hidden) hidden.value = editor.innerHTML;
     }
 
+    // مزامنة جميع المحررات كل نصف ثانية
     setInterval(() => {
-        ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
+        ['reading', 'readingQuestions', 'language', 'writing', 'listening', 'listeningQuestions', 'midLanguage'].forEach(id => syncRichText(id));
         updateReadingWordCount();
     }, 500);
 
+    // ========== عداد الكلمات للنص ==========
     function getWordCountFromHtml(html) {
         let temp = document.createElement('div');
         temp.innerHTML = html;
@@ -569,21 +601,10 @@
         }
     }
 
-    const limitInput = document.getElementById('readingWordLimit');
-    if (limitInput) limitInput.addEventListener('input', () => updateReadingWordCount());
-    const readingEditorElem = document.getElementById('readingEditor');
-    if (readingEditorElem) readingEditorElem.addEventListener('input', () => updateReadingWordCount());
+    document.getElementById('readingWordLimit')?.addEventListener('input', updateReadingWordCount);
+    document.getElementById('readingEditor')?.addEventListener('input', updateReadingWordCount);
 
-    function autoExpandTextarea(ta) {
-        ta.style.height = 'auto';
-        ta.style.height = Math.max(ta.scrollHeight, 80) + 'px';
-    }
-    document.querySelectorAll('textarea.auto-expand').forEach(ta => {
-        ta.addEventListener('input', function() { autoExpandTextarea(this); });
-        autoExpandTextarea(ta);
-    });
-
-    // --- DOM elements ---
+    // ========== المتغيرات الأساسية ==========
     const examTitle = document.getElementById('examTitle');
     const teacherName = document.getElementById('teacherName');
     const duration = document.getElementById('duration');
@@ -592,8 +613,6 @@
     const classLevel = document.getElementById('classLevel');
     const gradeValue = document.getElementById('gradeValue');
     const academicYear = document.getElementById('academicYear');
-    const readingQuestions = document.getElementById('readingQuestions');
-    const listeningQuestions = document.getElementById('listeningQuestions');
     const headerStyleSelect = document.getElementById('headerStyle');
     const autoSaveStatus = document.getElementById('autoSaveStatus');
     const globalSections = document.getElementById('globalSections');
@@ -617,27 +636,24 @@
     }
 
     radioGlobal.addEventListener('change', () => {
-        if (radioGlobal.checked) {
-            currentExamType = 'global';
-            toggleExamTypeVisibility();
-        }
+        if (radioGlobal.checked) { currentExamType = 'global'; toggleExamTypeVisibility(); }
     });
     radioMidterm.addEventListener('change', () => {
-        if (radioMidterm.checked) {
-            currentExamType = 'midterm';
-            toggleExamTypeVisibility();
-        }
+        if (radioMidterm.checked) { currentExamType = 'midterm'; toggleExamTypeVisibility(); }
     });
 
     showMarksRadios.forEach(r => r.addEventListener('change', updatePreview));
     pageBreaksRadios.forEach(r => r.addEventListener('change', updatePreview));
     fontSizeSelect.addEventListener('change', updatePreview);
 
+    // جمع البيانات
     function getCurrentExamData() {
         syncRichText('reading');
+        syncRichText('readingQuestions');
         syncRichText('language');
         syncRichText('writing');
         syncRichText('listening');
+        syncRichText('listeningQuestions');
         syncRichText('midLanguage');
         return {
             examType: currentExamType,
@@ -650,11 +666,11 @@
             grade: gradeValue.value,
             academicYear: academicYear.value,
             readingTextHtml: document.getElementById('readingHidden')?.value || '',
-            readingQuestions: readingQuestions.value,
+            readingQuestionsHtml: document.getElementById('readingQuestionsHidden')?.value || '',
             languageHtml: document.getElementById('languageHidden')?.value || '',
             writingHtml: document.getElementById('writingHidden')?.value || '',
             listeningTextHtml: document.getElementById('listeningHidden')?.value || '',
-            listeningQuestions: listeningQuestions.value,
+            listeningQuestionsHtml: document.getElementById('listeningQuestionsHidden')?.value || '',
             midLanguageHtml: document.getElementById('midLanguageHidden')?.value || '',
             headerStyle: headerStyleSelect.value,
             showMarks: document.querySelector('input[name="showMarks"]:checked').value === 'show',
@@ -664,6 +680,7 @@
         };
     }
 
+    // استعادة البيانات
     function setExamData(data) {
         examTitle.value = data.examTitle || '';
         teacherName.value = data.teacherName || '';
@@ -683,14 +700,16 @@
         toggleExamTypeVisibility();
         if (document.getElementById('readingEditor')) document.getElementById('readingEditor').innerHTML = data.readingTextHtml || '';
         document.getElementById('readingHidden').value = data.readingTextHtml || '';
-        readingQuestions.value = data.readingQuestions || '';
+        if (document.getElementById('readingQuestionsEditor')) document.getElementById('readingQuestionsEditor').innerHTML = data.readingQuestionsHtml || '';
+        document.getElementById('readingQuestionsHidden').value = data.readingQuestionsHtml || '';
         if (document.getElementById('languageEditor')) document.getElementById('languageEditor').innerHTML = data.languageHtml || '';
         document.getElementById('languageHidden').value = data.languageHtml || '';
         if (document.getElementById('writingEditor')) document.getElementById('writingEditor').innerHTML = data.writingHtml || '';
         document.getElementById('writingHidden').value = data.writingHtml || '';
         if (document.getElementById('listeningEditor')) document.getElementById('listeningEditor').innerHTML = data.listeningTextHtml || '';
         document.getElementById('listeningHidden').value = data.listeningTextHtml || '';
-        listeningQuestions.value = data.listeningQuestions || '';
+        if (document.getElementById('listeningQuestionsEditor')) document.getElementById('listeningQuestionsEditor').innerHTML = data.listeningQuestionsHtml || '';
+        document.getElementById('listeningQuestionsHidden').value = data.listeningQuestionsHtml || '';
         if (document.getElementById('midLanguageEditor')) document.getElementById('midLanguageEditor').innerHTML = data.midLanguageHtml || '';
         document.getElementById('midLanguageHidden').value = data.midLanguageHtml || '';
         headerStyleSelect.value = data.headerStyle || 'classic';
@@ -698,19 +717,14 @@
             const showVal = data.showMarks ? 'show' : 'hide';
             document.querySelector(`input[name="showMarks"][value="${showVal}"]`).checked = true;
         }
-        if (data.pageBreaks) {
-            document.querySelector(`input[name="pageBreaks"][value="${data.pageBreaks}"]`).checked = true;
-        }
+        if (data.pageBreaks) document.querySelector(`input[name="pageBreaks"][value="${data.pageBreaks}"]`).checked = true;
         if (data.fontSize) fontSizeSelect.value = data.fontSize;
-        if (data.readingWordLimit && document.getElementById('readingWordLimit')) {
-            document.getElementById('readingWordLimit').value = data.readingWordLimit;
-        }
-        ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
+        if (data.readingWordLimit && document.getElementById('readingWordLimit')) document.getElementById('readingWordLimit').value = data.readingWordLimit;
+        ['reading', 'readingQuestions', 'language', 'writing', 'listening', 'listeningQuestions', 'midLanguage'].forEach(id => syncRichText(id));
         updateReadingWordCount();
-        document.querySelectorAll('textarea.auto-expand').forEach(ta => autoExpandTextarea(ta));
     }
 
-    // Local Storage
+    // ========== Local Storage (كما هو) ==========
     const STORAGE_KEY = 'examCollectionPro';
     const AUTO_DRAFT_KEY = 'autoDraftExam';
     function getExamCollection() { let s = localStorage.getItem(STORAGE_KEY); try { return s ? JSON.parse(s) : {}; } catch(e){ return {}; } }
@@ -724,7 +738,7 @@
     function checkForDraft() { const draft = localStorage.getItem(AUTO_DRAFT_KEY); if (draft && confirm("Restore auto-saved draft?")) { try { setExamData(JSON.parse(draft)); autoSaveStatus.innerHTML = `<i class="fas fa-undo-alt"></i> Draft restored`; } catch(e){} } }
     function duplicateExam() { let current = getCurrentExamData(); current.examTitle = current.examTitle + " (Copy)"; setExamData(current); alert("Duplicated. Click Save Exam to store."); autoSaveDraft(); }
 
-    // Dark mode
+    // ========== Dark Mode ==========
     function toggleDarkMode() {
         document.body.classList.toggle('dark-mode');
         const icon = document.querySelector('#darkModeToggle i');
@@ -741,17 +755,18 @@
         document.querySelector('#darkModeToggle i').className = 'fas fa-sun';
     }
 
-    // JSON
+    // ========== JSON ==========
     function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); }
     function importJSON() { let input = document.createElement('input'); input.type='file'; input.accept='.json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let imported=JSON.parse(ev.target.result); if(confirm("Add to library (OK) or load into editor (Cancel)?")){ let name=prompt("Save as name:", imported.examTitle||"Imported"); if(name){ let coll=getExamCollection(); coll[name]=imported; saveExamCollection(coll); } } else { setExamData(imported); updatePreview(); } } catch(err){ alert("Invalid JSON"); } }; reader.readAsText(file); }; input.click(); }
 
-    // Exam HTML generator (shortened for brevity – same as last working version)
+    // ========== مولد HTML للتصدير (مع دعم الأسئلة المنسقة) ==========
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=> m==='&'?'&amp;': m==='<'?'&lt;':'&gt;'); }
     function generateExamHTML() {
         let data = getCurrentExamData();
         let style = data.headerStyle;
         let gradeDisplay = data.grade.trim() ? `<strong>Grade:</strong> ${escapeHtml(data.grade)}` : '';
         let headerHtml = '';
+        // (أنماط الرأس كما هي سابقاً - اختصاراً للعرض)
         if (style === 'threecol1') {
             headerHtml = `<div style="background:#f4f9ff; padding:15px; border-radius:16px; margin-bottom:25px;"><div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; text-align:center;"><div><strong>📌 Exam</strong><br>${escapeHtml(data.examTitle)}</div><div><strong>👩‍🏫 Teacher</strong><br>${escapeHtml(data.teacherName)}</div><div><strong>⏱️ Duration</strong><br>${escapeHtml(data.duration)}</div></div><hr><div style="display:grid; grid-template-columns:repeat(2,1fr); text-align:center;"><div><strong>🏫 School</strong><br>${escapeHtml(data.schoolName)}</div><div><strong>📚 Class</strong><br>${escapeHtml(data.class)}</div></div><div style="margin-top:10px; text-align:center;"><strong>🧑‍🎓 Student:</strong> ${escapeHtml(data.studentName)} ${gradeDisplay ? `| ${gradeDisplay}` : ''}</div></div>`;
         } else if (style === 'threecol2') {
@@ -761,9 +776,12 @@
         } else if (style === 'classic') {
             headerHtml = `<table style="width:100%; border-collapse:collapse; margin-bottom:25px;">`+
                 `<tr><th style="border:1px solid #888; padding:8px;">Exam</th><td>${escapeHtml(data.examTitle)}</td>`+
-                `<tr><th>Teacher(s)</th><td>${escapeHtml(data.teacherName)}</td></tr><tr><th>Duration</th><td>${escapeHtml(data.duration)}</td></tr>`+
-                `<tr><th>School</th><td>${escapeHtml(data.schoolName)}</td></tr><tr><th>Student</th><td>${escapeHtml(data.studentName)}</td></tr>`+
-                `<tr><th>Class</th><td>${escapeHtml(data.class)}</td></tr>${gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td></tr>`:''}</table>`;
+                `<tr><th>Teacher(s)</th><td>${escapeHtml(data.teacherName)}</td>`+
+                `<tr><th>Duration</th><td>${escapeHtml(data.duration)}</td>`+
+                `<tr><th>School</th><td>${escapeHtml(data.schoolName)}</td>`+
+                `<tr><th>Student</th><td>${escapeHtml(data.studentName)}</td>`+
+                `<tr><th>Class</th><td>${escapeHtml(data.class)}</td>`+
+                (gradeDisplay?`<tr><th>Grade</th><td>${gradeDisplay}</td>`:'')+`</table>`;
         } else if (style === 'modern') {
             headerHtml = `<div style="background:#eef3fc; padding:18px; border-radius:20px; margin-bottom:25px;"><h2>${escapeHtml(data.examTitle)}</h2><div style="display:flex; flex-wrap:wrap; gap:12px;"><div><strong>Teacher:</strong> ${escapeHtml(data.teacherName)}</div><div><strong>Duration:</strong> ${escapeHtml(data.duration)}</div><div><strong>School:</strong> ${escapeHtml(data.schoolName)}</div><div><strong>Student:</strong> ${escapeHtml(data.studentName)}</div><div><strong>Class:</strong> ${escapeHtml(data.class)}</div>${gradeDisplay?`<div>${gradeDisplay}</div>`:''}</div></div>`;
         } else {
@@ -779,32 +797,29 @@
         let bodyHtml = '';
         if (data.examType === 'midterm') {
             let listeningHtml = data.listeningTextHtml || '<p>Listening script missing</p>';
-            let listeningQ = data.listeningQuestions.split(/\r?\n/).filter(l=>l.trim());
-            let listeningQuestionsHtml = '<ul>'+listeningQ.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
+            let listeningQuestionsHtml = data.listeningQuestionsHtml || '<p>Questions missing</p>';
             let midLangHtml = data.midLanguageHtml || '<p>Language exercises missing</p>';
-            let sections = [
-                { icon: "🎧", title: "Listening Comprehension", marks: "8", content: `<div class="content"><strong>Script / Instructions:</strong><br>${listeningHtml}</div><div class="content"><strong>Questions:</strong><br>${listeningQuestionsHtml}</div>` },
-                { icon: "✍️", title: "Language Exercises", marks: "12", content: `<div class="content">${midLangHtml}</div>` }
-            ];
-            bodyHtml = sections.map((sec, idx) => {
-                let breakStyle = (data.pageBreaks === 'between' && idx > 0) ? 'page-break-before: always;' : (data.pageBreaks === 'beforeEach' ? 'page-break-before: avoid;' : '');
-                return `<div style="${breakStyle}">${formatSectionTitle(sec.icon, sec.title, sec.marks)}${sec.content}</div>`;
-            }).join('');
+            bodyHtml = `
+                ${formatSectionTitle("🎧", "Listening Comprehension", "8")}
+                <div class="content"><strong>Script / Instructions:</strong><br>${listeningHtml}</div>
+                <div class="content"><strong>Questions:</strong><br>${listeningQuestionsHtml}</div>
+                ${formatSectionTitle("✍️", "Language Exercises", "12")}
+                <div class="content">${midLangHtml}</div>
+            `;
         } else {
             let readingHtml = data.readingTextHtml || '<p>Text missing</p>';
-            let readingQ = data.readingQuestions.split(/\r?\n/).filter(l=>l.trim());
-            let readingQuestionsHtml = '<ul>'+readingQ.map(l=>`<li>${escapeHtml(l)}</li>`).join('')+'</ul>';
+            let readingQuestionsHtml = data.readingQuestionsHtml || '<p>Questions missing</p>';
             let langHtml = data.languageHtml || '<p>Language exercises missing</p>';
             let writingHtml = data.writingHtml || '<p>Writing prompt missing</p>';
-            let sections = [
-                { icon: "📖", title: "Reading Comprehension", marks: "6", content: `<div class="content"><strong>Text:</strong><br>${readingHtml}</div><div class="content"><strong>Questions:</strong><br>${readingQuestionsHtml}</div>` },
-                { icon: "✍️", title: "Language Exercises", marks: "8", content: `<div class="content">${langHtml}</div>` },
-                { icon: "✒️", title: "Writing Production", marks: "6", content: `<div class="content">${writingHtml}<br><br><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div></div>` }
-            ];
-            bodyHtml = sections.map((sec, idx) => {
-                let breakStyle = (data.pageBreaks === 'between' && idx > 0) ? 'page-break-before: always;' : (data.pageBreaks === 'beforeEach' ? 'page-break-before: avoid;' : '');
-                return `<div style="${breakStyle}">${formatSectionTitle(sec.icon, sec.title, sec.marks)}${sec.content}</div>`;
-            }).join('');
+            bodyHtml = `
+                ${formatSectionTitle("📖", "Reading Comprehension", "6")}
+                <div class="content"><strong>Text:</strong><br>${readingHtml}</div>
+                <div class="content"><strong>Questions:</strong><br>${readingQuestionsHtml}</div>
+                ${formatSectionTitle("✍️", "Language Exercises", "8")}
+                <div class="content">${langHtml}</div>
+                ${formatSectionTitle("✒️", "Writing Production", "6")}
+                <div class="content">${writingHtml}<br><br><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div><div style="border-bottom:1px solid #bbb; margin:20px 0;"></div></div>
+            `;
         }
 
         return `<!DOCTYPE html>
@@ -828,6 +843,7 @@
     function printExam() { let win = window.open(); win.document.write(generateExamHTML()); win.document.close(); win.print(); }
     function updatePreview() { let html = generateExamHTML(); document.getElementById('previewIframe').srcdoc = html; }
 
+    // ========== تبويبات ==========
     const tabs = document.querySelectorAll('.tab');
     const contents = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
@@ -841,6 +857,7 @@
         });
     });
 
+    // ========== ربط الأزرار ==========
     document.getElementById('duplicateExamBtn').addEventListener('click', duplicateExam);
     document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
     document.getElementById('printExamBtn').addEventListener('click', printExam);
@@ -852,8 +869,9 @@
     document.getElementById('exportWordBtn').addEventListener('click', exportToWord);
     document.getElementById('refreshPreview').addEventListener('click', updatePreview);
 
+    // ========== بدء التشغيل ==========
     updateDropdown(getExamCollection());
-    ['reading', 'language', 'writing', 'listening', 'midLanguage'].forEach(id => syncRichText(id));
+    ['reading', 'readingQuestions', 'language', 'writing', 'listening', 'listeningQuestions', 'midLanguage'].forEach(id => syncRichText(id));
     checkForDraft();
     toggleExamTypeVisibility();
     updateReadingWordCount();
