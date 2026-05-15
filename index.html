@@ -330,6 +330,166 @@
         .word-counter.warning { background: #3d2e00; border-color: #ffc107; color: #ffe6a3; }
         .word-counter.exceed  { background: #3d0000; border-color: #dc3545; color: #ffcdd2; }
 
+        /* ── QUESTION TEMPLATES ── */
+        .templates-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 1100;
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .templates-overlay.open { display: flex; }
+
+        .templates-modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--orange);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 780px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+            overflow: hidden;
+        }
+        .templates-modal-header {
+            padding: 18px 22px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .templates-modal-header h2 {
+            margin: 0;
+            font-size: 1.15rem;
+            color: var(--orange);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .templates-modal-close {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text); font-size: 0.95rem;
+            transition: 0.2s; flex-shrink: 0;
+        }
+        .templates-modal-close:hover { background: var(--red); border-color: var(--red-border); }
+
+        .templates-target-select {
+            padding: 10px 22px 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .templates-target-select select {
+            flex: 1;
+            min-width: 180px;
+            padding: 7px 12px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+        }
+
+        .templates-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .templates-cats {
+            width: 160px;
+            flex-shrink: 0;
+            background: #0f1020;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        .tcat-btn {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 11px 16px;
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 3px solid transparent;
+        }
+        .tcat-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+        .tcat-btn.active { color: var(--orange); border-left-color: var(--orange); background: var(--orange-glow); font-weight: 700; }
+
+        .templates-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 12px;
+            align-content: start;
+        }
+        .template-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .template-card:hover {
+            border-color: var(--orange);
+            background: var(--orange-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240,112,32,0.2);
+        }
+        .template-card-icon { font-size: 1.5rem; }
+        .template-card-name { font-weight: 700; font-size: 0.88rem; color: var(--text); }
+        .template-card-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; }
+        .template-card-tag {
+            display: inline-block;
+            background: rgba(240,112,32,0.15);
+            border: 1px solid rgba(240,112,32,0.3);
+            color: var(--orange);
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            margin-top: 4px;
+            width: fit-content;
+        }
+        .btn-templates {
+            background: rgba(240,112,32,0.15);
+            border: 1px solid rgba(240,112,32,0.4);
+            color: var(--orange);
+            font-weight: 700;
+        }
+        .btn-templates:hover { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+        @media (max-width: 600px) {
+            .templates-cats { width: 110px; }
+            .tcat-btn { font-size: 0.75rem; padding: 10px 10px; }
+            .templates-grid { grid-template-columns: 1fr; }
+        }
         /* ── SCROLLBAR ── */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -500,6 +660,7 @@
             </div>
         </div>
         <div class="toolbar-buttons">
+            <button class="btn btn-templates" id="openTemplatesBtn"><i class="fas fa-th-large"></i> Templates</button>
             <button class="btn" id="duplicateExamBtn"><i class="fas fa-copy"></i> Duplicate</button>
             <button class="btn" id="printExamBtn"><i class="fas fa-print"></i> Print/PDF</button>
             <button class="btn" id="saveCurrentExamBtn"><i class="fas fa-save"></i> Save Exam</button>
@@ -519,6 +680,7 @@
             <div class="mobile-menu-close" id="menuClose"><i class="fas fa-times"></i></div>
         </div>
         <div class="mobile-menu-items">
+            <button class="btn btn-templates" id="mTemplatesBtn"><i class="fas fa-th-large"></i> Templates</button>
             <button class="btn" id="mDuplicateBtn"><i class="fas fa-copy"></i> Duplicate</button>
             <button class="btn" id="mPrintBtn"><i class="fas fa-print"></i> Print / PDF</button>
             <button class="btn" id="mSaveBtn"><i class="fas fa-save"></i> Save Exam</button>
@@ -706,6 +868,33 @@
         <iframe id="previewIframe" class="preview-frame" title="Exam Preview"></iframe>
         <div style="text-align: center; margin-top: 20px;">
             <button class="btn btn-green" id="refreshPreview"><i class="fas fa-sync-alt"></i> Refresh Preview</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── QUESTION TEMPLATES MODAL ── -->
+<div class="templates-overlay" id="templatesOverlay">
+    <div class="templates-modal">
+        <div class="templates-modal-header">
+            <h2><i class="fas fa-th-large"></i> Question Templates</h2>
+            <div class="templates-modal-close" id="templatesClose"><i class="fas fa-times"></i></div>
+        </div>
+        <div class="templates-target-select">
+            <span><i class="fas fa-arrow-right"></i> Insert into:</span>
+            <select id="templateTarget">
+                <option value="readingQuestionsEditor">📖 Reading – Questions</option>
+                <option value="readingEditor">📖 Reading – Text</option>
+                <option value="languageEditor">✍️ Language Exercises</option>
+                <option value="writingEditor">✒️ Writing Production</option>
+                <option value="listeningEditor">🎧 Listening – Script</option>
+                <option value="listeningQuestionsEditor">🎧 Listening – Questions</option>
+                <option value="midLanguageEditor">✍️ Mid-Term Language</option>
+            </select>
+            <span style="font-size:0.75rem;">Click any template to insert at cursor</span>
+        </div>
+        <div class="templates-body">
+            <div class="templates-cats" id="templatesCats"></div>
+            <div class="templates-grid" id="templatesGrid"></div>
         </div>
     </div>
 </div>
@@ -1109,6 +1298,130 @@
     let touchStartX = 0;
     mobilePanel.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
     mobilePanel.addEventListener('touchend',   e => { if (e.changedTouches[0].clientX - touchStartX > 60) closeMenu(); }, { passive: true });
+    // ── MOBILE MENU: wire templates button ──
+    document.getElementById('mTemplatesBtn').addEventListener('click', () => { openTemplatesModal(); closeMenu(); });
+    document.getElementById('openTemplatesBtn').addEventListener('click', openTemplatesModal);
+    document.getElementById('templatesClose').addEventListener('click', closeTemplatesModal);
+    document.getElementById('templatesOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeTemplatesModal(); });
+
+    // ── TEMPLATES DATA ──
+    const TEMPLATES = {
+        'True / False': [
+            { icon:'✅', name:'True / False (4 items)', tag:'Reading', desc:'Four T/F statements with justification lines', html:`<p><strong>1. True or False. Justify your answers from the text. (4 marks)</strong></p><p>a) _____________ — Justification: ___________________________</p><p>b) _____________ — Justification: ___________________________</p><p>c) _____________ — Justification: ___________________________</p><p>d) _____________ — Justification: ___________________________</p>` },
+            { icon:'☑️', name:'T/F with Checkboxes', tag:'Reading', desc:'Checkbox-style true/false', html:`<p><strong>Are these sentences True (T) or False (F)?</strong></p><p>⬜ T &nbsp; ⬜ F &nbsp; 1. _______________________________</p><p>⬜ T &nbsp; ⬜ F &nbsp; 2. _______________________________</p><p>⬜ T &nbsp; ⬜ F &nbsp; 3. _______________________________</p><p>⬜ T &nbsp; ⬜ F &nbsp; 4. _______________________________</p>` },
+        ],
+        'Multiple Choice': [
+            { icon:'🔘', name:'MCQ – 4 options (A-D)', tag:'Language', desc:'Classic 4-option multiple choice', html:`<p><strong>Choose the correct answer (a, b, c or d). (2 marks)</strong></p><p>1. _________________________________<br>&nbsp;&nbsp; a) ________ &nbsp; b) ________ &nbsp; c) ________ &nbsp; d) ________</p><p>2. _________________________________<br>&nbsp;&nbsp; a) ________ &nbsp; b) ________ &nbsp; c) ________ &nbsp; d) ________</p>` },
+            { icon:'🔵', name:'MCQ – Circle the answer', tag:'Language', desc:'Students circle the correct word', html:`<p><strong>Circle the correct answer. (3 marks)</strong></p><p>1. She ________ (go / went / gone) to school yesterday.</p><p>2. They ________ (is / are / was) happy now.</p><p>3. I ________ (have / has / had) a dog last year.</p>` },
+            { icon:'🧩', name:'MCQ Vocabulary', tag:'Language', desc:'Choose the word that matches the definition', html:`<p><strong>Choose the word that matches each definition. (3 marks)</strong></p><p>1. A person who treats sick people: &nbsp; a) teacher &nbsp; b) doctor &nbsp; c) pilot</p><p>2. The opposite of hot: &nbsp; a) warm &nbsp; b) cold &nbsp; c) soft</p><p>3. To move fast on foot: &nbsp; a) sleep &nbsp; b) run &nbsp; c) sit</p>` },
+        ],
+        'Fill in the Blank': [
+            { icon:'📝', name:'Fill in (word bank)', tag:'Language', desc:'Gapped sentences with a word bank', html:`<p><strong>Fill in the blanks with words from the box. (4 marks)</strong></p><p style="background:rgba(240,112,32,0.08);border:1px dashed #f07020;padding:6px 12px;border-radius:8px;display:inline-block;margin-bottom:8px;"><em>although &nbsp;|&nbsp; because &nbsp;|&nbsp; however &nbsp;|&nbsp; therefore</em></p><p>1. I stayed home ____________ it was raining.</p><p>2. She studied hard; ____________, she passed the exam.</p><p>3. ____________ he was tired, he continued working.</p><p>4. He was late; ____________, he missed the bus.</p>` },
+            { icon:'✏️', name:'Fill in (verb tense)', tag:'Language', desc:'Put verb in correct tense', html:`<p><strong>Put the verbs in brackets in the correct tense. (4 marks)</strong></p><p>1. She ____________ (study) every night last week.</p><p>2. They ____________ (not / arrive) yet.</p><p>3. By next year, he ____________ (finish) his degree.</p><p>4. We ____________ (watch) TV when the phone rang.</p>` },
+            { icon:'🔗', name:'Fill in (prepositions)', tag:'Language', desc:'Complete with correct preposition', html:`<p><strong>Fill in the blanks with the correct preposition. (3 marks)</strong></p><p>1. She is interested ______ music.</p><p>2. He is good ______ mathematics.</p><p>3. They arrived ______ the airport on time.</p>` },
+        ],
+        'Matching': [
+            { icon:'🔀', name:'Match words to definitions', tag:'Language', desc:'Two columns: words and meanings', html:`<p><strong>Match each word with its correct definition. (4 marks)</strong></p><table style="width:100%;border-collapse:collapse;"><tr><td style="padding:4px 10px;width:50%;">1. Ambitious &nbsp;&nbsp;&nbsp;&nbsp; ___</td><td style="padding:4px 10px;">a) Very large in size</td></tr><tr><td style="padding:4px 10px;">2. Enormous &nbsp;&nbsp;&nbsp;&nbsp; ___</td><td style="padding:4px 10px;">b) Having a strong desire to succeed</td></tr><tr><td style="padding:4px 10px;">3. Exhausted &nbsp;&nbsp;&nbsp; ___</td><td style="padding:4px 10px;">c) Extremely tired</td></tr><tr><td style="padding:4px 10px;">4. Generous &nbsp;&nbsp;&nbsp;&nbsp; ___</td><td style="padding:4px 10px;">d) Willing to give more than expected</td></tr></table>` },
+            { icon:'↔️', name:'Match sentences halves', tag:'Language', desc:'Join sentence beginnings to their endings', html:`<p><strong>Match the sentence halves. (3 marks)</strong></p><p>1. If it rains tomorrow, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a) she would have passed.</p><p>2. If she had studied, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b) we will stay at home.</p><p>3. Unless you hurry, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c) you will miss the train.</p>` },
+        ],
+        'Comprehension': [
+            { icon:'❓', name:'Wh- Questions (x4)', tag:'Reading', desc:'Standard who/what/where/when questions', html:`<p><strong>Answer the following questions. (4 marks)</strong></p><p>1. Who is the text about?<br>_______________________________________________</p><p>2. What is the main topic of the text?<br>_______________________________________________</p><p>3. Where does the story take place?<br>_______________________________________________</p><p>4. Why is this person/event important?<br>_______________________________________________</p>` },
+            { icon:'📌', name:'Tick the correct title', tag:'Reading', desc:'Choose the best title from 3 options', html:`<p><strong>Tick (✓) the most appropriate title for the text. (1 mark)</strong></p><p>⬜ a) _______________________________________________</p><p>⬜ b) _______________________________________________</p><p>⬜ c) _______________________________________________</p>` },
+            { icon:'🔍', name:'Find synonyms in text', tag:'Reading', desc:'Find words in text closest in meaning', html:`<p><strong>Find words or expressions in the text that mean the same as the following. (2 marks)</strong></p><p>a) Very well-known: ________________________________ (§1)</p><p>b) To make certain: ________________________________ (§2)</p>` },
+            { icon:'📋', name:'Complete a table', tag:'Reading', desc:'Fill in a summary table from the text', html:`<p><strong>Read the text and complete the table. (4 marks)</strong></p><table style="width:100%;border-collapse:collapse;border:1px solid #555;"><tr style="background:rgba(240,112,32,0.15);"><th style="border:1px solid #555;padding:6px;">Category</th><th style="border:1px solid #555;padding:6px;">Information from text</th></tr><tr><td style="border:1px solid #555;padding:6px;">Name</td><td style="border:1px solid #555;padding:6px;">&nbsp;</td></tr><tr><td style="border:1px solid #555;padding:6px;">Age / Date</td><td style="border:1px solid #555;padding:6px;">&nbsp;</td></tr><tr><td style="border:1px solid #555;padding:6px;">Achievement</td><td style="border:1px solid #555;padding:6px;">&nbsp;</td></tr><tr><td style="border:1px solid #555;padding:6px;">Country</td><td style="border:1px solid #555;padding:6px;">&nbsp;</td></tr></table>` },
+        ],
+        'Writing': [
+            { icon:'✒️', name:'Descriptive essay prompt', tag:'Writing', desc:'Describe a place, person or event', html:`<p><strong>Write a short descriptive paragraph (60–80 words).</strong></p><p>Describe a place you love to visit. Include details about what you see, hear, and feel there.</p><p><em>You may use the following ideas:</em> location &nbsp;|&nbsp; atmosphere &nbsp;|&nbsp; why it is special to you</p>` },
+            { icon:'📬', name:'Informal letter', tag:'Writing', desc:'Write a letter to a friend', html:`<p><strong>Write an informal letter to a friend (80–100 words).</strong></p><p>Your friend has just moved to a new city. Write a letter to:</p><ul><li>ask how they are settling in</li><li>share some news about yourself</li><li>invite them to visit you</li></ul>` },
+            { icon:'🗞️', name:'Opinion paragraph', tag:'Writing', desc:'Express and justify an opinion', html:`<p><strong>Write a short opinion paragraph (60–80 words).</strong></p><p>Do you think social media has a positive or negative effect on young people? Give your opinion and support it with two reasons.</p>` },
+            { icon:'📖', name:'Story continuation', tag:'Writing', desc:'Continue the story from a given opening', html:`<p><strong>Continue the following story (80–100 words).</strong></p><p><em>It was a dark and stormy night. Ahmed heard a knock at the door. He hesitated before slowly turning the handle…</em></p><p>Continue the story. Use the past tense and include: who was there, what happened next, how it ended.</p>` },
+        ],
+        'Grammar': [
+            { icon:'🔁', name:'Rewrite sentences', tag:'Grammar', desc:'Transform sentences (passive, reported, etc.)', html:`<p><strong>Rewrite the following sentences as indicated. (4 marks)</strong></p><p>1. "I love chocolate," said Mary. (Reported speech)<br>Mary said that ___________________________________.</p><p>2. The children cleaned the classroom. (Passive voice)<br>The classroom ___________________________________.</p><p>3. She is so tired that she cannot walk. (Use: too…to)<br>She is ___________________________________.</p><p>4. Despite being tired, he finished the work. (Use: although)<br>Although ___________________________________.</p>` },
+            { icon:'🔧', name:'Correct the mistakes', tag:'Grammar', desc:'Find and fix grammar errors', html:`<p><strong>Find and correct the mistake in each sentence. (3 marks)</strong></p><p>1. She don't like vegetables.<br>→ _______________________________________________</p><p>2. We was playing football at 5 PM.<br>→ _______________________________________________</p><p>3. He has went to Paris last summer.<br>→ _______________________________________________</p>` },
+            { icon:'🏷️', name:'Complete with the right form', tag:'Grammar', desc:'Adjective/adverb/noun form transformation', html:`<p><strong>Use the correct form of the word in brackets. (4 marks)</strong></p><p>1. Her performance was ____________ (impress).</p><p>2. He spoke ____________ (confident) during the presentation.</p><p>3. The weather was ____________ (extreme) cold last night.</p><p>4. Learning a language requires ____________ (patient).</p>` },
+        ],
+        'Listening': [
+            { icon:'🎧', name:'Listening – Circle answer', tag:'Listening', desc:'Circle what you hear', html:`<p><strong>Listen and circle the correct answer. (3 marks)</strong></p><p>1. The speaker is talking about: &nbsp; a) school &nbsp; b) travel &nbsp; c) food</p><p>2. The event takes place: &nbsp; a) in the morning &nbsp; b) at noon &nbsp; c) in the evening</p><p>3. The speaker's feeling is: &nbsp; a) excited &nbsp; b) nervous &nbsp; c) bored</p>` },
+            { icon:'✅', name:'Listening – T/F', tag:'Listening', desc:'True or false from what you hear', html:`<p><strong>Listen and write True (T) or False (F). (4 marks)</strong></p><p>1. _____ The speakers are at a restaurant.</p><p>2. _____ They plan to travel by train.</p><p>3. _____ The trip is next weekend.</p><p>4. _____ One speaker has already been there before.</p>` },
+            { icon:'📝', name:'Listening – Short answers', tag:'Listening', desc:'Answer with a word or short phrase', html:`<p><strong>Listen and answer the questions with a word or short phrase. (4 marks)</strong></p><p>1. What is the topic of the conversation?<br>→ _______________________________________________</p><p>2. Who are the speakers?<br>→ _______________________________________________</p><p>3. When does the event take place?<br>→ _______________________________________________</p><p>4. What is the final decision?<br>→ _______________________________________________</p>` },
+        ],
+    };
+
+    let activeTemplateCategory = Object.keys(TEMPLATES)[0];
+
+    function renderTemplateCategories() {
+        const cats = document.getElementById('templatesCats');
+        cats.innerHTML = '';
+        const icons = {'True / False':'✅','Multiple Choice':'🔘','Fill in the Blank':'✏️','Matching':'↔️','Comprehension':'❓','Writing':'✒️','Grammar':'🔧','Listening':'🎧'};
+        Object.keys(TEMPLATES).forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'tcat-btn' + (cat === activeTemplateCategory ? ' active' : '');
+            btn.innerHTML = `<span>${icons[cat]||'📋'}</span><span>${cat}</span>`;
+            btn.addEventListener('click', () => {
+                activeTemplateCategory = cat;
+                renderTemplateCategories();
+                renderTemplateCards();
+            });
+            cats.appendChild(btn);
+        });
+    }
+
+    function renderTemplateCards() {
+        const grid = document.getElementById('templatesGrid');
+        grid.innerHTML = '';
+        const templates = TEMPLATES[activeTemplateCategory] || [];
+        templates.forEach(t => {
+            const card = document.createElement('div');
+            card.className = 'template-card';
+            card.innerHTML = `
+                <div class="template-card-icon">${t.icon}</div>
+                <div class="template-card-name">${t.name}</div>
+                <div class="template-card-desc">${t.desc}</div>
+                <span class="template-card-tag">${t.tag}</span>`;
+            card.addEventListener('click', () => insertTemplate(t.html));
+            grid.appendChild(card);
+        });
+    }
+
+    function insertTemplate(html) {
+        const targetId = document.getElementById('templateTarget').value;
+        const editor = document.getElementById(targetId);
+        if (!editor) return;
+        editor.focus();
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0 && editor.contains(sel.anchorNode)) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            const div = document.createElement('div');
+            div.innerHTML = '<br>' + html + '<br>';
+            const frag = document.createDocumentFragment();
+            let node, lastNode;
+            while ((node = div.firstChild)) { lastNode = frag.appendChild(node); }
+            range.insertNode(frag);
+            if (lastNode) { const r = range.cloneRange(); r.setStartAfter(lastNode); r.collapse(true); sel.removeAllRanges(); sel.addRange(r); }
+        } else {
+            editor.innerHTML += '<br>' + html;
+        }
+        // Flash feedback
+        editor.style.boxShadow = '0 0 0 3px rgba(240,112,32,0.5)';
+        setTimeout(() => { editor.style.boxShadow = ''; }, 800);
+        closeTemplatesModal();
+        // Sync hidden field
+        const hiddenId = targetId.replace('Editor', 'Hidden');
+        const hidden = document.getElementById(hiddenId);
+        if (hidden) hidden.value = editor.innerHTML;
+    }
+
+    function openTemplatesModal() {
+        renderTemplateCategories();
+        renderTemplateCards();
+        document.getElementById('templatesOverlay').classList.add('open');
+    }
+    function closeTemplatesModal() {
+        document.getElementById('templatesOverlay').classList.remove('open');
+    }
+
 </script>
 </body>
 </html>
