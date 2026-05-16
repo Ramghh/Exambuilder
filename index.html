@@ -490,6 +490,69 @@
             .tcat-btn { font-size: 0.75rem; padding: 10px 10px; }
             .templates-grid { grid-template-columns: 1fr; }
         }
+        /* ── DASHBOARD ── */
+        .exam-dash-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .exam-dash-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--orange);
+            border-radius: 4px 0 0 4px;
+        }
+        .exam-dash-card:hover { border-color: var(--orange); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,112,32,0.15); }
+        .dash-card-title { font-weight: 800; font-size: 1rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dash-card-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 8px; }
+        .dash-card-meta span { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 2px 9px; }
+        .dash-card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+        .dash-card-actions .btn { padding: 7px 14px; font-size: 0.8rem; min-height: 36px; }
+
+        /* KBD shortcut keys */
+        kbd {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 1px 6px;
+            font-size: 0.72rem;
+            font-family: monospace;
+            color: var(--orange);
+        }
+
+        /* ── UNDO/REDO toast ── */
+        .ur-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--surface2);
+            border: 1px solid var(--orange);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 2000;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .ur-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .ur-toast i { color: var(--orange); }
+
         /* ── SCROLLBAR ── */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -691,12 +754,13 @@
     </div>
 
     <div class="status-bar">
-        <span><i class="fas fa-clock"></i> Auto-save every 30 sec</span>
-        <span id="autoSaveStatus"><i class="fas fa-check-circle"></i> Ready</span>
+        <span><i class="fas fa-keyboard"></i> Shortcuts: <kbd>Ctrl+S</kbd> Save &nbsp; <kbd>Ctrl+Z</kbd> Undo &nbsp; <kbd>Ctrl+Y</kbd> Redo &nbsp; <kbd>Ctrl+P</kbd> Print &nbsp; <kbd>Ctrl+D</kbd> Dashboard</span>
+        <span id="undoRedoStatus" style="color:var(--text-muted);font-size:0.72rem;"></span>
     </div>
 
     <div class="tabs">
         <div class="tab active" data-tab="editor"><i class="fas fa-edit"></i> Editor</div>
+        <div class="tab" data-tab="dashboard"><i class="fas fa-th-large"></i> Dashboard</div>
         <div class="tab" data-tab="preview"><i class="fas fa-eye"></i> Preview</div>
     </div>
 
@@ -864,6 +928,19 @@
         </div>
     </div>
 
+    <div id="dashboardTab" class="tab-content">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--orange);"><i class="fas fa-th-large"></i> Saved Exams</div>
+            <input id="dashboardSearch" type="text" placeholder="🔍 Search exams..." style="max-width:280px;padding:9px 16px;border-radius:50px;">
+        </div>
+        <div id="dashboardGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;"></div>
+        <div id="dashboardEmpty" style="display:none;text-align:center;padding:60px 20px;color:var(--text-muted);">
+            <div style="font-size:3rem;margin-bottom:12px;">📂</div>
+            <div style="font-size:1rem;font-weight:600;">No saved exams yet</div>
+            <div style="font-size:0.85rem;margin-top:6px;">Save an exam from the Editor tab to see it here</div>
+        </div>
+    </div>
+
     <div id="previewTab" class="tab-content">
         <iframe id="previewIframe" class="preview-frame" title="Exam Preview"></iframe>
         <div style="text-align: center; margin-top: 20px;">
@@ -1018,7 +1095,6 @@
     const gradeValue = document.getElementById('gradeValue');
     const academicYear = document.getElementById('academicYear');
     const headerStyleSelect = document.getElementById('headerStyle');
-    const autoSaveStatus = document.getElementById('autoSaveStatus');
     const globalSections = document.getElementById('globalSections');
     const midtermSections = document.getElementById('midtermSections');
     const radioGlobal = document.querySelector('input[value="global"]');
@@ -1121,17 +1197,13 @@
 
     // ========== Local Storage ==========
     const STORAGE_KEY = 'examCollectionPro';
-    const AUTO_DRAFT_KEY = 'autoDraftExam';
     function getExamCollection() { let s = localStorage.getItem(STORAGE_KEY); try { return s ? JSON.parse(s) : {}; } catch(e){ return {}; } }
-    function saveExamCollection(coll) { localStorage.setItem(STORAGE_KEY, JSON.stringify(coll)); updateDropdown(coll); }
+    function saveExamCollection(coll) { localStorage.setItem(STORAGE_KEY, JSON.stringify(coll)); updateDropdown(coll); renderDashboard(); }
     function updateDropdown(coll) { let sel = document.getElementById('examListSelect'); sel.innerHTML = '<option value="">-- Select exam --</option>'; for(let name in coll) { let opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt); } }
-    function saveCurrentAsNew() { let name = prompt("Exam name:", examTitle.value); if(!name) return; let coll = getExamCollection(); coll[name.trim()] = getCurrentExamData(); saveExamCollection(coll); alert("Saved: "+name); autoSaveStatus.innerHTML = `<i class="fas fa-check-circle"></i> Manual save at ${new Date().toLocaleTimeString()}`; }
+    function saveCurrentAsNew() { let name = prompt("Exam name:", examTitle.value); if(!name) return; let coll = getExamCollection(); coll[name.trim()] = { ...getCurrentExamData(), savedAt: new Date().toISOString() }; saveExamCollection(coll); alert("Saved: "+name); }
     function loadSelected() { let sel = document.getElementById('examListSelect').value; if(!sel) return; let coll = getExamCollection(); if(coll[sel]) setExamData(coll[sel]); else alert("Not found"); updatePreview(); }
     function deleteSelected() { let sel = document.getElementById('examListSelect').value; if(!sel) return; if(confirm("Delete?")) { let coll = getExamCollection(); delete coll[sel]; saveExamCollection(coll); } }
-    function autoSaveDraft() { const data = getCurrentExamData(); localStorage.setItem(AUTO_DRAFT_KEY, JSON.stringify(data)); autoSaveStatus.innerHTML = `<i class="fas fa-save"></i> Draft saved at ${new Date().toLocaleTimeString()}`; setTimeout(() => { if (autoSaveStatus.innerHTML.includes('Draft saved')) autoSaveStatus.innerHTML = `<i class="fas fa-check-circle"></i> Ready`; }, 2000); }
-    setInterval(autoSaveDraft, 30000);
-    function checkForDraft() { const draft = localStorage.getItem(AUTO_DRAFT_KEY); if (draft && confirm("Restore auto-saved draft?")) { try { setExamData(JSON.parse(draft)); autoSaveStatus.innerHTML = `<i class="fas fa-undo-alt"></i> Draft restored`; } catch(e){} } }
-    function duplicateExam() { let current = getCurrentExamData(); current.examTitle = current.examTitle + " (Copy)"; setExamData(current); alert("Duplicated. Click Save Exam to store."); autoSaveDraft(); }
+    function duplicateExam() { let current = getCurrentExamData(); current.examTitle = current.examTitle + " (Copy)"; setExamData(current); alert("Duplicated. Click Save Exam to store."); }
 
     // ========== JSON ==========
     function exportJSON() { let data = getCurrentExamData(); let blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (data.examTitle.replace(/\s+/g,'_')||'exam')+'.json'; a.click(); URL.revokeObjectURL(a.href); }
@@ -1242,6 +1314,7 @@
             contents.forEach(c => c.classList.remove('active'));
             document.getElementById(tabId + 'Tab').classList.add('active');
             if (tabId === 'preview') updatePreview();
+            if (tabId === 'dashboard') renderDashboard();
         });
     });
 
@@ -1257,7 +1330,6 @@
 
     updateDropdown(getExamCollection());
     ['reading', 'readingQuestions', 'language', 'writing', 'listening', 'listeningQuestions', 'midLanguage'].forEach(id => syncRichText(id));
-    checkForDraft();
     toggleExamTypeVisibility();
     updateReadingWordCount();
 
@@ -1421,6 +1493,159 @@
     function closeTemplatesModal() {
         document.getElementById('templatesOverlay').classList.remove('open');
     }
+
+    // ── UNDO / REDO HISTORY (#26) ──
+    const HISTORY_LIMIT = 50;
+    let undoStack = [];
+    let redoStack = [];
+    let _suppressHistory = false;
+
+    function captureSnapshot(label = '') {
+        if (_suppressHistory) return;
+        const snap = { label, data: JSON.parse(JSON.stringify(getCurrentExamData())) };
+        undoStack.push(snap);
+        if (undoStack.length > HISTORY_LIMIT) undoStack.shift();
+        redoStack = [];
+        updateUndoRedoStatus();
+    }
+
+    function updateUndoRedoStatus() {
+        const el = document.getElementById('undoRedoStatus');
+        if (el) el.textContent = `Undo: ${undoStack.length}  |  Redo: ${redoStack.length}`;
+    }
+
+    function showURToast(msg) {
+        let toast = document.getElementById('urToast');
+        if (!toast) { toast = document.createElement('div'); toast.id = 'urToast'; toast.className = 'ur-toast'; document.body.appendChild(toast); }
+        toast.innerHTML = `<i class="fas fa-history"></i> ${msg}`;
+        toast.classList.add('show');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function undoAction() {
+        if (!undoStack.length) { showURToast('Nothing to undo'); return; }
+        const current = { label: 'redo point', data: JSON.parse(JSON.stringify(getCurrentExamData())) };
+        redoStack.push(current);
+        const snap = undoStack.pop();
+        _suppressHistory = true;
+        setExamData(snap.data);
+        _suppressHistory = false;
+        updateUndoRedoStatus();
+        showURToast(`Undo: ${snap.label || 'change'}`);
+    }
+
+    function redoAction() {
+        if (!redoStack.length) { showURToast('Nothing to redo'); return; }
+        const current = { label: 'undo point', data: JSON.parse(JSON.stringify(getCurrentExamData())) };
+        undoStack.push(current);
+        const snap = redoStack.pop();
+        _suppressHistory = true;
+        setExamData(snap.data);
+        _suppressHistory = false;
+        updateUndoRedoStatus();
+        showURToast(`Redo: ${snap.label || 'change'}`);
+    }
+
+    // Capture snapshot on every input in form fields
+    let _snapTimer;
+    function scheduleSnapshot(label) {
+        clearTimeout(_snapTimer);
+        _snapTimer = setTimeout(() => captureSnapshot(label), 800);
+    }
+    document.querySelectorAll('#examTitle,#teacherName,#duration,#schoolName,#studentName,#classLevel,#gradeValue,#academicYear')
+        .forEach(el => el.addEventListener('input', () => scheduleSnapshot('form field edit')));
+    ['readingEditor','readingQuestionsEditor','languageEditor','writingEditor','listeningEditor','listeningQuestionsEditor','midLanguageEditor']
+        .forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('input', () => scheduleSnapshot('content edit')); });
+
+    // ── KEYBOARD SHORTCUTS ──
+    document.addEventListener('keydown', e => {
+        const ctrl = e.ctrlKey || e.metaKey;
+        if (!ctrl) return;
+        switch(e.key.toLowerCase()) {
+            case 's': e.preventDefault(); captureSnapshot('before save'); saveCurrentAsNew(); break;
+            case 'z': e.preventDefault(); undoAction(); break;
+            case 'y': e.preventDefault(); redoAction(); break;
+            case 'p': e.preventDefault(); printExam(); break;
+            case 'd': e.preventDefault(); openDashboard(); break;
+        }
+    });
+
+    // Initial snapshot on load
+    setTimeout(() => captureSnapshot('initial'), 500);
+
+    // ── EXAM DASHBOARD (#11) ──
+    function renderDashboard() {
+        const coll = getExamCollection();
+        const grid = document.getElementById('dashboardGrid');
+        const empty = document.getElementById('dashboardEmpty');
+        const search = (document.getElementById('dashboardSearch')?.value || '').toLowerCase();
+        if (!grid) return;
+        const keys = Object.keys(coll).filter(k => k.toLowerCase().includes(search));
+        grid.innerHTML = '';
+        if (!keys.length) { grid.style.display = 'none'; empty.style.display = 'block'; return; }
+        grid.style.display = 'grid'; empty.style.display = 'none';
+        keys.forEach(name => {
+            const exam = coll[name];
+            const saved = exam.savedAt ? new Date(exam.savedAt).toLocaleDateString() : '—';
+            const type = exam.examType === 'midterm' ? '🎧 Mid-Term' : '🌍 Global';
+            const card = document.createElement('div');
+            card.className = 'exam-dash-card';
+            card.innerHTML = `
+                <div class="dash-card-title" title="${name}">${name}</div>
+                <div class="dash-card-meta">
+                    <span>${type}</span>
+                    <span><i class="fas fa-user-tie"></i> ${exam.teacherName || '—'}</span>
+                    <span><i class="fas fa-users"></i> ${exam.class || '—'}</span>
+                    <span><i class="fas fa-calendar"></i> ${saved}</span>
+                </div>
+                <div class="dash-card-actions">
+                    <button class="btn btn-green" onclick="dashLoad('${name.replace(/'/g,"\\'")}')"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn" onclick="dashDuplicate('${name.replace(/'/g,"\\'")}')"><i class="fas fa-copy"></i> Copy</button>
+                    <button class="btn" onclick="dashPrint('${name.replace(/'/g,"\\'")}')"><i class="fas fa-print"></i> Print</button>
+                    <button class="btn btn-red" onclick="dashDelete('${name.replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
+                </div>`;
+            grid.appendChild(card);
+        });
+    }
+
+    function dashLoad(name) {
+        const coll = getExamCollection();
+        if (coll[name]) { captureSnapshot('before load'); setExamData(coll[name]); updatePreview(); openTab('editor'); }
+    }
+    function dashDuplicate(name) {
+        const coll = getExamCollection(); if (!coll[name]) return;
+        const newName = prompt("New name:", name + " (Copy)"); if (!newName) return;
+        coll[newName.trim()] = { ...coll[name], examTitle: newName.trim(), savedAt: new Date().toISOString() };
+        saveExamCollection(coll);
+    }
+    function dashPrint(name) {
+        const coll = getExamCollection(); if (!coll[name]) return;
+        captureSnapshot('before print load'); setExamData(coll[name]); printExam();
+    }
+    function dashDelete(name) {
+        if (!confirm(`Delete "${name}"?`)) return;
+        const coll = getExamCollection(); delete coll[name]; saveExamCollection(coll);
+    }
+
+    function openDashboard() {
+        renderDashboard();
+        openTab('dashboard');
+    }
+    function openTab(tabId) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        const tab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+        const content = document.getElementById(tabId + 'Tab');
+        if (tab) tab.classList.add('active');
+        if (content) content.classList.add('active');
+        if (tabId === 'preview') updatePreview();
+        if (tabId === 'dashboard') renderDashboard();
+    }
+
+    document.getElementById('dashboardSearch')?.addEventListener('input', renderDashboard);
+    renderDashboard();
+    updateUndoRedoStatus();
 
 </script>
 </body>
