@@ -553,6 +553,37 @@
         .ur-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .ur-toast i { color: var(--orange); }
 
+        /* ── IMAGE EXPORT MODAL ── */
+        .img-format-opt {
+            flex: 1;
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text);
+            min-width: 90px;
+        }
+        .img-format-opt input[type=radio] { display: none; }
+        .img-format-opt:has(input:checked),
+        .img-format-opt.active {
+            border-color: var(--orange);
+            background: var(--orange-glow);
+            color: var(--orange);
+        }
+        .img-format-opt:hover { border-color: var(--orange); }
+        .img-fmt-desc {
+            font-size: 0.68rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
         /* ── SCROLLBAR ── */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -726,6 +757,7 @@
             <button class="btn btn-templates" id="openTemplatesBtn"><i class="fas fa-th-large"></i> Templates</button>
             <button class="btn" id="duplicateExamBtn"><i class="fas fa-copy"></i> Duplicate</button>
             <button class="btn" id="printExamBtn"><i class="fas fa-print"></i> Print/PDF</button>
+            <button class="btn" id="exportImgBtn"><i class="fas fa-image"></i> Export Image</button>
             <button class="btn" id="saveCurrentExamBtn"><i class="fas fa-save"></i> Save Exam</button>
             <button class="btn" id="exportJsonBtn"><i class="fas fa-file-code"></i> Export JSON</button>
             <button class="btn" id="importJsonBtn"><i class="fas fa-upload"></i> Import JSON</button>
@@ -746,6 +778,7 @@
             <button class="btn btn-templates" id="mTemplatesBtn"><i class="fas fa-th-large"></i> Templates</button>
             <button class="btn" id="mDuplicateBtn"><i class="fas fa-copy"></i> Duplicate</button>
             <button class="btn" id="mPrintBtn"><i class="fas fa-print"></i> Print / PDF</button>
+            <button class="btn" id="mExportImgBtn"><i class="fas fa-image"></i> Export Image</button>
             <button class="btn" id="mSaveBtn"><i class="fas fa-save"></i> Save Exam</button>
             <button class="btn" id="mExportJsonBtn"><i class="fas fa-file-code"></i> Export JSON</button>
             <button class="btn" id="mImportJsonBtn"><i class="fas fa-upload"></i> Import JSON</button>
@@ -972,6 +1005,63 @@
         <div class="templates-body">
             <div class="templates-cats" id="templatesCats"></div>
             <div class="templates-grid" id="templatesGrid"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── EXPORT IMAGE MODAL ── -->
+<div class="templates-overlay" id="exportImgOverlay">
+    <div class="templates-modal" style="max-width:480px;min-height:unset;">
+        <div class="templates-modal-header">
+            <h2><i class="fas fa-image"></i> Export as Image</h2>
+            <div class="templates-modal-close" id="exportImgClose"><i class="fas fa-times"></i></div>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:18px;">
+
+            <div class="input-group">
+                <label><i class="fas fa-file-image"></i> &nbsp;Format</label>
+                <div style="display:flex;gap:10px;">
+                    <label class="img-format-opt" data-fmt="png">
+                        <input type="radio" name="imgFmt" value="png" checked> PNG
+                        <span class="img-fmt-desc">Transparent bg, lossless</span>
+                    </label>
+                    <label class="img-format-opt" data-fmt="jpeg">
+                        <input type="radio" name="imgFmt" value="jpeg"> JPEG
+                        <span class="img-fmt-desc">Smaller size, white bg</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-tachometer-alt"></i> &nbsp;Quality / Scale</label>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <label class="img-format-opt active" data-scale="2">
+                        <input type="radio" name="imgScale" value="2" checked> HD
+                        <span class="img-fmt-desc">~150 DPI, fast</span>
+                    </label>
+                    <label class="img-format-opt" data-scale="3">
+                        <input type="radio" name="imgScale" value="3"> Full HD
+                        <span class="img-fmt-desc">~220 DPI, balanced</span>
+                    </label>
+                    <label class="img-format-opt" data-scale="5">
+                        <input type="radio" name="imgScale" value="5"> Ultra HQ
+                        <span class="img-fmt-desc">~380 DPI, print quality</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label><i class="fas fa-file-signature"></i> &nbsp;File name</label>
+                <input type="text" id="imgExportName" placeholder="exam_export" style="border-radius:12px;">
+            </div>
+
+            <div id="imgExportProgress" style="display:none;text-align:center;padding:10px;color:var(--text-muted);font-size:0.85rem;">
+                <i class="fas fa-spinner fa-spin"></i> &nbsp;Rendering exam… please wait
+            </div>
+
+            <button class="btn btn-green" id="doExportImgBtn" style="width:100%;justify-content:center;font-size:1rem;padding:14px;">
+                <i class="fas fa-download"></i> &nbsp;Download Image
+            </button>
         </div>
     </div>
 </div>
@@ -1646,6 +1736,100 @@
     document.getElementById('dashboardSearch')?.addEventListener('input', renderDashboard);
     renderDashboard();
     updateUndoRedoStatus();
+
+    // ── EXPORT IMAGE (#24) ──
+    function openExportImgModal() {
+        updatePreview();
+        const title = document.getElementById('examTitle')?.value || 'exam';
+        document.getElementById('imgExportName').value = title.replace(/\s+/g, '_') || 'exam_export';
+        document.getElementById('exportImgOverlay').classList.add('open');
+    }
+    function closeExportImgModal() {
+        document.getElementById('exportImgOverlay').classList.remove('open');
+    }
+
+    document.getElementById('exportImgBtn').addEventListener('click', openExportImgModal);
+    document.getElementById('mExportImgBtn').addEventListener('click', () => { openExportImgModal(); closeMenu(); });
+    document.getElementById('exportImgClose').addEventListener('click', closeExportImgModal);
+    document.getElementById('exportImgOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeExportImgModal(); });
+
+    // Highlight selected radio options visually
+    document.querySelectorAll('.img-format-opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const name = opt.querySelector('input')?.name;
+            document.querySelectorAll(`.img-format-opt input[name="${name}"]`).forEach(r => {
+                r.closest('.img-format-opt')?.classList.remove('active');
+            });
+            opt.classList.add('active');
+        });
+    });
+
+    document.getElementById('doExportImgBtn').addEventListener('click', async () => {
+        const fmt    = document.querySelector('input[name="imgFmt"]:checked')?.value   || 'png';
+        const scale  = parseInt(document.querySelector('input[name="imgScale"]:checked')?.value || '3');
+        const fname  = (document.getElementById('imgExportName').value.trim() || 'exam_export');
+        const prog   = document.getElementById('imgExportProgress');
+        const btn    = document.getElementById('doExportImgBtn');
+
+        // Make sure preview is up to date
+        updatePreview();
+        await new Promise(r => setTimeout(r, 300));
+
+        const frame = document.getElementById('previewFrame');
+        if (!frame) { alert('Preview not ready. Switch to Preview tab first.'); return; }
+
+        prog.style.display = 'block';
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> &nbsp;Rendering…';
+
+        try {
+            // Load html2canvas dynamically if not already loaded
+            if (!window.html2canvas) {
+                await new Promise((res, rej) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                    s.onload = res; s.onerror = rej;
+                    document.head.appendChild(s);
+                });
+            }
+
+            // Render the iframe's document body
+            const iframeDoc = frame.contentDocument || frame.contentWindow.document;
+            const target    = iframeDoc.body;
+
+            const canvas = await html2canvas(target, {
+                scale:           scale,
+                useCORS:         true,
+                allowTaint:      true,
+                backgroundColor: fmt === 'jpeg' ? '#ffffff' : null,
+                logging:         false,
+                windowWidth:     iframeDoc.body.scrollWidth,
+                windowHeight:    iframeDoc.body.scrollHeight,
+                scrollX: 0,
+                scrollY: 0,
+            });
+
+            const mimeType = fmt === 'jpeg' ? 'image/jpeg' : 'image/png';
+            const quality  = fmt === 'jpeg' ? 0.95 : 1.0;
+            const dataUrl  = canvas.toDataURL(mimeType, quality);
+
+            const a = document.createElement('a');
+            a.href     = dataUrl;
+            a.download = `${fname}.${fmt}`;
+            a.click();
+
+            showURToast(`✅ Image exported as ${fmt.toUpperCase()} (×${scale} scale)`);
+            closeExportImgModal();
+
+        } catch (err) {
+            console.error(err);
+            alert('Export failed: ' + err.message);
+        } finally {
+            prog.style.display = 'none';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-download"></i> &nbsp;Download Image';
+        }
+    });
 
 </script>
 </body>
